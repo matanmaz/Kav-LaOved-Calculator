@@ -403,6 +403,8 @@ function calcVacation(isFirst){
 			total_value_without_oldness));
 }
 
+sepPayTotal = 0;
+
 function calcPension(isFirst){
 	start_date = $("#formElement2-"+selectedForm).val();
 	end_date = $("#formElement3-"+selectedForm).val();
@@ -414,12 +416,11 @@ function calcPension(isFirst){
 	//convert dates to months and years of work
 	dateDiff = getDateDiff(dateA, dateB);
 	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
-	sep_elig_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
+	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	//define output table headers
-	if(!sep_elig || sep_elig_details)
-		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG]];
-	else
-		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG]];
+	
+	headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
+	
 	total_value = 0;//running total
 
 	//start filling the table
@@ -495,26 +496,28 @@ function calcPension(isFirst){
 
 			period--;
 		}
-		(sep_elig)? total_value += periodTotal : total_value += periodTotal * 2;
+		(sep_elig && (!sep_elig_show_details))? total_value += periodTotal : total_value += periodTotal * 2;
 		
 		period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
-		if(!sep_elig || sep_elig_details)
-			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentage*100, periodTotal, periodTotal]);
-		else
-			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentage*100, periodTotal]);
+		
+		rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentage*100, periodTotal, periodTotal, periodTotal*2]);
+
 
 		periodStart = new Date(periodEnd);
 		periodStart.setDate(periodEnd.getDate()+1);
 	}
 
 	//get visual
-	if(!sep_elig || sep_elig_details)
-		createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG], dateDiff, headers, rows,['%s','%.2f','%.2f','%.2f%%','%.2f','%.2f']);
-	else
-		createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG], dateDiff, headers, rows,['%s','%.2f','%.2f','%.2f%%','%.2f']);
+	createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG], dateDiff, headers, rows,['%s','%.2f','%.2f','%.2f%%','%.2f','%.2f','%.2f']);
 	output = $("#div_output");
 	output_body.append(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], 
 		total_value));
+	
+	//In case both checkmarks are checked, we need the separation pay total saved so that we can deduct it from the compensation total
+	sepPayTotal = 0
+	if(sep_elig && sep_elig_show_details){
+		sepPayTotal = total_value / 2;
+	}
 }
 
 function calcHolidays(isFirst){
@@ -541,6 +544,9 @@ function calcCompen (isFirst) {
 	end_date = $("#formElement3-"+selectedForm).val();
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
+	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
+	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
+	
 	if(isFirst)
 		if(!isInputValid(dateA, dateB))
 			return;
@@ -560,9 +566,17 @@ function calcCompen (isFirst) {
 
 	createOutputTable(isFirst, STR.output_compen[LANG], dateDiff, [], [], []);
 	output = $("#div_output");
+	
+	
 	output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 	 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
 			STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
+
+	if(sep_elig && sep_elig_show_details){
+		output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
+		 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
+				STR.compen_label1_2[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
+	}
 }
 
 function calcEarly (isFirst) {
