@@ -8,7 +8,7 @@ holiday_ratio = 1.5;
 agr_holiday_ratio = 1.75;
 
 recuperation_days = [5,6,6,7,7,7,7,7,7,7,8,8,8,8,8,9,9,9,9,10];
-latest_recuperation_value = 374;
+latest_recuperation_value = 378;
 recuperation_days_agr = 7;
 
 six_day_week_vacations = [12,12,12,12,14,16,18,19,20,21,22,23,24,24];
