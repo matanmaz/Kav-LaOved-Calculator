@@ -1,0 +1,15 @@
+table
+{
+	border-collapse:collapse;
+	white-space: nowrap;
+}
+input[type="date"]::-webkit-calendar-picker-indicator{
+    display:inline-block;
+    margin-top:2%;
+    float:right;
+}
+input[type="date"]::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0;
+}
