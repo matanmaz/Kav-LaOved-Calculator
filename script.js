@@ -419,8 +419,15 @@ function calcPension(isFirst){
 	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	//define output table headers
 	
-	headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
-	
+	//different columns depending on separation stuff:
+	if(sep_elig && (!sep_elig_show_details) ){
+		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_period[LANG]];
+		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
+	}
+	else {
+		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
+		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
+	}
 	total_value = 0;//running total
 
 	//start filling the table
@@ -500,15 +507,24 @@ function calcPension(isFirst){
 		
 		period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
 		
-		rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentage*100, periodTotal, periodTotal, periodTotal*2]);
-
+		//whether we show X% or X%+X%:
+		periodPercentageString = sprintf("%.2f%%", periodPercentage*100)
+		periodPercentageString = (sep_elig && (!sep_elig_show_details))? periodPercentageString : periodPercentageString + "+" + periodPercentageString
+		
+		//different columns depending on sep:
+		if(sep_elig && (!sep_elig_show_details) ){
+			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal]);
+		}
+		else {
+			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
+		}
 
 		periodStart = new Date(periodEnd);
 		periodStart.setDate(periodEnd.getDate()+1);
 	}
 
-	//get visual
-	createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG], dateDiff, headers, rows,['%s','%.2f','%.2f','%.2f%%','%.2f','%.2f','%.2f']);
+	//get visual	
+	createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG] + "</u> " + STR.output_pension_expl[LANG], dateDiff, headers, rows, printFormat);
 	output = $("#div_output");
 	output_body.append(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], 
 		total_value));
@@ -567,15 +583,15 @@ function calcCompen (isFirst) {
 	createOutputTable(isFirst, STR.output_compen[LANG], dateDiff, [], [], []);
 	output = $("#div_output");
 	
-	
-	output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
-	 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
-			STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
-
+	if(sep_elig && (!sep_elig_show_details) ){
+		output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
+		 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
+				STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
+	}
 	if(sep_elig && sep_elig_show_details){
 		output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 		 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
-				STR.compen_label1_2[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
+				STR.output_compen_complement[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
 	}
 }
 
