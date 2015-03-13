@@ -96,6 +96,7 @@ function initPage() {
 	$("#form4").append(sprintf(formElement2,4));
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
+	lastYear.setDate(lastYear.getDate() + 1);
 	for(i=1;i<NUMBER_OF_FORMS+1;i++){
 		$("#formElement2-"+i).val(dateToString(lastYear,2));
 	}
@@ -203,6 +204,7 @@ function isInputValid(dateA, dateB){
 		alert(STR.alert_no_dates[LANG]);
 		return false;
 	}
+	
 
 	if(selectedForm==DAILY_WORKER_FORM){
 		num_days_in_week = $('#formElement8-2').val();
@@ -213,6 +215,11 @@ function isInputValid(dateA, dateB){
 		}
 	}
 	return true;
+}
+
+function getEndDate() {
+	end_date = new Date($("#formElement3-"+selectedForm).val());
+	return new Date(end_date.setDate(end_date.getDate()+1));
 }
 
 function getPartTimeFraction(){
@@ -296,7 +303,7 @@ function getVacationDays (year, months) {
 
 function calcRecuper(isFirst){
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	if(isFirst)
@@ -353,7 +360,7 @@ function calcRecuper(isFirst){
 
 function calcVacation(isFirst){
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	if(isFirst)
@@ -411,7 +418,7 @@ sepPayTotal = 0;
 
 function calcPension(isFirst){
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	if(isFirst)
@@ -544,7 +551,7 @@ function calcHolidays(isFirst){
 	if(selectedForm == DAILY_WORKER_FORM)
 		return;
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	if(isFirst)
@@ -561,7 +568,7 @@ function calcHolidays(isFirst){
 
 function calcCompen (isFirst) {
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
@@ -608,7 +615,7 @@ function calcCompen (isFirst) {
 
 function calcEarly (isFirst) {
 	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = $("#formElement3-"+selectedForm).val();
+	end_date = getEndDate()
 	dateA = new Date(start_date);
 	dateB = new Date(end_date);
 	if(isFirst)
@@ -907,6 +914,10 @@ function getHolidayValue (yearNum) {
 	return ratio * getVacationDayValue(yearNum);
 }
 
+function getNumDaysInMonth(year,month){
+	return (new Date(year,month,0)).getDate();
+}
+
 function getDateDiff(dateA, dateB) {
 	//calculates B - A
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
@@ -931,7 +942,7 @@ function getDateDiff(dateA, dateB) {
 		months-=1;
 		dayB += TOTAL_DAYS_IN_MONTH;
 	}
-	months += (dayB-dayA)/TOTAL_DAYS_IN_MONTH;
+	months += (dayB-dayA)/getNumDaysInMonth(dateB.getFullYear(), monthB+1);
 
 	return [years, months];
 }
