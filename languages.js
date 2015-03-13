@@ -21,6 +21,7 @@
 	show_elig_details : ['Show Separation Pay Calculation','פרוט חישוב הפיצויים'],
 	recuper_day : ['Pay for Recuperation Day','תשלום ליום הבראה'],
 	vacation_day : ['Pay for Vacation Day','תשלום ליום חופשה'],
+	holiday_day : ['Pay for Holiday','תשלום ליום חג'],
 	calc_recuper_vacation_and_holidays : ['Calculate Recuperation, Vacation, and Holiday Payments','חשב דמי הבראה, חופשה וחגים'],
 	calc_compen : ['Calculate Pension, Separation Pay, and Prior Notice','חשב פנסיה, פיצויים והודעה מוקדמת'],
 	alert_no_dates : ['Please enter start and end date','הכנס תאריך התחלה וסוף'],
@@ -70,6 +71,6 @@
 	output_pension_expl : ['(employer allowance only, starting from 7th month at work)','(הפרשות המעסיק בלבד, החל מהחודש השביעי לעבודה)'],
 	shekels : ['NIS','ש"ח'],
 	employer_name : ['Employer Name','שם המעסיק'],
-	comments : ['Comments','הערות'],
+	comments : ['Comments','הערות']
 }
 //	 : ['',''],
