@@ -193,6 +193,10 @@ function showForm(formId){
 	checkedEligCompen()
 }
 
+function isSeparationEligible() {
+	return $('#formElement13-'+selectedForm).is(':checked');
+}
+
 function isInputValid(dateA, dateB){
 	//validate input
 	if(selectedForm==0) {
@@ -205,6 +209,16 @@ function isInputValid(dateA, dateB){
 		return false;
 	}
 	
+	dateDiff = getDateDiff(dateA, dateB)
+	if(dateDiff[0]<1 && isSeparationEligible()){
+		alert(STR.output_compen_less_than_year_alert[LANG]);
+		return false;
+	}
+	
+	if($('#formElement20-'+selectedForm).val() > 100) {
+		alert(STR.alert_part_time_over_hundred[LANG]);
+		return false;
+	}
 
 	if(selectedForm==DAILY_WORKER_FORM){
 		num_days_in_week = $('#formElement8-2').val();
@@ -231,7 +245,7 @@ function getPartTimeFraction(){
 		hours = hours > 43 ? 43 : hours;
 		if(!hours)
 			alert(STR.alert_no_hours_in_week[LANG]);
-		partial = WEEKS_IN_MONTH * hours / 186;
+		partial = hours / 43;
 	}
 	if(selectedForm==MONTHLHY_WORKER_FORM)
 	{
@@ -268,7 +282,7 @@ function getOldness(period, yearsBack){
 function getVacationDayValue(yearNum){
 	min_month_value = pension_data[pension_data.length-1][1];
 	month_value = getMonthWage(min_month_value, yearNum);
-	return month_value / getNumDaysInMonth();
+	return month_value / getNumWorkDaysInMonth();
 }
 
 function getVacationDays (year, months) {	
@@ -285,20 +299,24 @@ function getVacationDays (year, months) {
 	if(selectedForm == DAILY_WORKER_FORM)
 	{	
 		if(num_days_in_week>=1)
-			return Math.floor(xDayWeekVacation*months/12);
-		if(months==12)
-			return Math.floor(fiveDayWeekVacation * num_days_in_week *
-				52 / 200);
-		return Math.floor(fiveDayWeekVacation * num_days_in_week *
-			months * WEEKS_IN_MONTH / 240);
+			vacation_days = xDayWeekVacation*months/12;
+		else if(months==12)
+			vacation_days = fiveDayWeekVacation * num_days_in_week * 52 / 200;
+		else vacation_days = fiveDayWeekVacation * num_days_in_week *
+			months * WEEKS_IN_MONTH / 240;
 	}
-	if(selectedForm == AGRICULTURAL_WORKER_FORM){
-		return Math.floor(agr_vacations[year]*months/12);
+	else if(selectedForm == AGRICULTURAL_WORKER_FORM){
+		vacation_days = agr_vacations[year]*months/12;
 	}
 	
-	if($('#formElement19-4').is(':checked'))
-		return Math.floor(fiveDayWeekVacation*months/12);
-	return Math.floor(sixDayWeekVacation*months/12);
+	else if($('#formElement19-4').is(':checked'))
+		vacation_days = fiveDayWeekVacation*months/12;
+	else vacation_days = sixDayWeekVacation*months/12;
+	
+	if(vacation_days - Math.floor(vacation_days) >= 0.9)
+		return Math.floor(vacation_days)+1;
+	else
+		return Math.floor(vacation_days);
 }
 
 function calcRecuper(isFirst){
@@ -685,7 +703,7 @@ function getNumDaysInWeek () {
 	}
 }
 
-function getNumDaysInMonth () {
+function getNumWorkDaysInMonth () {
 	if(selectedForm == CARETAKER_FORM || selectedForm == AGRICULTURAL_WORKER_FORM)
 		return SIX_WORK_DAYS_IN_MONTH;
 	if(selectedForm == 2)
