@@ -885,7 +885,7 @@ function createOutputTable(isFirst, title, dateDiff, headers, rows, formats){
 		
 		//show contact details
 		if(showImage){
-			output_footer.append("<img width='100%' src='פרטי קשר - קו לעובד.jpg'/>");
+			output_footer.append("<img width='100%' src='contact-info.jpg'/>");
 		}
 	}
 
