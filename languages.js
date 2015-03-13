@@ -33,6 +33,7 @@
 	output_holidays: ['Holidays','חישוב חגים'],
 	output_compen : ['Severance Pay','פיצויי פיטורין'],
 	output_compen_complement : ['Full Severance Pay Complement','השלמה לפיצויי פיטורין מלאים'],
+	output_compen_less_than_year : ['Worker has not worked a full year','לא הושלמה שנת עבודה'],
 	output_early : ['Prior Notice','תמורת הודעה מוקדמת'],
 	compen_label1 : ['Wage X Number of Years','סכום השכר X מספר השנים'],
 	//compen_label1_2 : ['Wage X Number of Years - Separation Pay','השלמה לפיצויי פיטורין מלאים'],

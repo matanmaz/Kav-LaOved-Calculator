@@ -1,4 +1,6 @@
-﻿NUMBER_OF_FORMS = 4;
+﻿last_update = "13.3.2015"
+
+NUMBER_OF_FORMS = 4;
 LANG = 1;
 selectedForm = 0;
 showImage = true;
@@ -51,6 +53,8 @@ function initPage() {
 	else
 		document.body.dir="rtl";
 
+	$("#div_main").append('Calculator from: ' + last_update + "<br/>");
+	
 	$("#div_main").append('<input id="lang0" type="button" value="English" onClick="setLang(0);"/> ');
 	$("#div_main").append('<input id="lang0" type="button" value="עברית" onClick="setLang(1);"/><br/>');
 
@@ -548,7 +552,7 @@ function calcHolidays(isFirst){
 			return;
 	numHolidays = $('#formElement7-'+selectedForm).val();
 	dateDiff = getDateDiff(dateA, dateB);
-	output_table_id = createOutputTable(isFirst, STR.output_holidays[LANG], dateDiff, [], [],[]);
+	output_table_id = createOutputTable(isFirst, sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_holidays[LANG], STR.holiday_day[LANG], getHolidayValue(dateDiff[0])), dateDiff, [], [], ['%d','%d','%d','%.2f']);
 	table = $("#output_table"+output_table_id);
 	if(numHolidays!="")
 		table.append(sprintf("<tr><td>%s: %s</td><td>%s: %.2f</td></tr>",
@@ -575,23 +579,30 @@ function calcCompen (isFirst) {
 		return;
 
 	month_value = getMonthWage(min_month_value, dateDiff[0]);
-	if(dateDiff[0]<1)
-		compensation = 0;
-	else
-		compensation = month_value * (dateDiff[0] + dateDiff[1]/12);
-
+	
 	createOutputTable(isFirst, STR.output_compen[LANG], dateDiff, [], [], []);
 	output = $("#div_output");
 	
-	if(sep_elig && (!sep_elig_show_details) ){
-		output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
-		 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
-				STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
+	//alert that worker isn't eligible due to working less than a year
+	if(dateDiff[0]<1) {
+		output_body.append("<p>" + STR.output_compen_less_than_year[LANG] + "<p/>");
 	}
-	if(sep_elig && sep_elig_show_details){
-		output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
-		 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
-				STR.output_compen_complement[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
+	//in this case indeed some money is deserved and we show the calculation
+	else {
+		compensation = month_value * (dateDiff[0] + dateDiff[1]/12);
+
+		
+		
+		if(sep_elig && (!sep_elig_show_details) ){
+			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
+			 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
+					STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
+		}
+		if(sep_elig && sep_elig_show_details){
+			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
+			 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
+					STR.output_compen_complement[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
+		}
 	}
 }
 
@@ -886,10 +897,14 @@ function resetOutput () {
 }
 
 function getHolidayTotal (yearNum, numHolidays) {
+	return getHolidayValue(yearNum) * numHolidays;
+}
+
+function getHolidayValue (yearNum) {
 	ratio = holiday_ratio;
 	if(selectedForm == AGRICULTURAL_WORKER_FORM)
 		ratio = agr_holiday_ratio;
-	return ratio * getVacationDayValue(yearNum) * numHolidays;
+	return ratio * getVacationDayValue(yearNum);
 }
 
 function getDateDiff(dateA, dateB) {
