@@ -1,4 +1,4 @@
-﻿last_update = "13.3.2015"
+﻿last_update = "21.3.2015"
 
 NUMBER_OF_FORMS = 4;
 LANG = 1;
@@ -279,8 +279,17 @@ function getOldness(period, yearsBack){
 	return [0,0];
 }
 
+function getPensionDataIndex(date) {
+	running_index = 0;
+	while(date >= pension_data[running_index][0])
+			running_index++;
+		running_index--;
+	return running_index
+}
+
 function getVacationDayValue(yearNum){
-	min_month_value = pension_data[pension_data.length-1][1];
+	//Calculate the value of a vacation day based minimum wage on the pension data of the end of work date
+	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
 	month_value = getMonthWage(min_month_value, yearNum);
 	return month_value / getNumWorkDaysInMonth();
 }
@@ -476,9 +485,7 @@ function calcPension(isFirst){
 	}
 	else{
 		//find the first pension_data by running on running index
-		while(dateA >= pension_data[running_index][0])
-			running_index++;
-		running_index--;
+		getPensionDataIndex(dateA);
 	}
 
 	while(running_index<pension_data.length && pension_data[running_index][0]<dateB){
@@ -595,7 +602,7 @@ function calcCompen (isFirst) {
 	if(isFirst)
 		if(!isInputValid(dateA, dateB))
 			return;
-	min_month_value = pension_data[pension_data.length-1][1];
+	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
 	dateDiff = getDateDiff(dateA, dateB);
 
 	//case when compensation is not to be show:
@@ -639,7 +646,7 @@ function calcEarly (isFirst) {
 	if(isFirst)
 		if(!isInputValid(dateA, dateB))
 			return;
-	min_month_value = pension_data[pension_data.length-1][1];
+	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
 	dateDiff = getDateDiff(dateA, dateB);
 
 	//case when early notice is not to be show:
@@ -665,11 +672,9 @@ function calcEarly (isFirst) {
 			numDays--;
 		}
 
-		min_month_value = pension_data[pension_data.length-1][1];
 		earlyPay = getDayWage(min_month_value, dateDiff[0]) * workDays;
 	}
 	else{
-		min_month_value = pension_data[pension_data.length-1][1];
 		earlyPay = getMonthWage(min_month_value, dateDiff[0]);
 	}
 	output_table_id = createOutputTable(isFirst, STR.output_early[LANG], dateDiff, [], [], []);
