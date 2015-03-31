@@ -585,11 +585,9 @@ function calcHolidays(isFirst){
 			return;
 	numHolidays = $('#formElement7-'+selectedForm).val();
 	dateDiff = getDateDiff(dateA, dateB);
-	output_table_id = createOutputTable(isFirst, sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_holidays[LANG], STR.holiday_day[LANG], getHolidayValue(dateDiff[0])), dateDiff, [], [], ['%d','%d','%d','%.2f']);
-	table = $("#output_table"+output_table_id);
-	if(numHolidays!="")
-		table.append(sprintf("<tr><td>%s: %s</td><td>%s: %.2f</td></tr>",
-			STR.num_holidays[LANG], numHolidays, STR.total_amount_holidays[LANG], getHolidayTotal(dateDiff[0],$('#formElement7-'+selectedForm).val())));
+	if(numHolidays!="0" && numHolidays!="")
+		output_body.append(sprintf("<p>%s: %s</p>",
+			STR.num_holidays[LANG], numHolidays, STR.total_amount_holidays[LANG]));
 }
 
 function calcCompen (isFirst) {
