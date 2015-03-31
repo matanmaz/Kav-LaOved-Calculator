@@ -1,4 +1,4 @@
-﻿last_update = "21.3.2015"
+﻿last_update = "31.3.2015"
 
 NUMBER_OF_FORMS = 4;
 LANG = 1;
@@ -204,7 +204,7 @@ function isInputValid(dateA, dateB){
 		return false;
 	}
 	
-	if(dateA == "Invalid Date" || dateB == "Invalid Date" || dateB<=dateA) {
+	if(dateA == "Invalid Date" || dateB == "Invalid Date" || dateB<dateA) {
 		alert(STR.alert_no_dates[LANG]);
 		return false;
 	}
@@ -233,7 +233,8 @@ function isInputValid(dateA, dateB){
 
 function getEndDate() {
 	end_date = new Date($("#formElement3-"+selectedForm).val());
-	return new Date(end_date.setDate(end_date.getDate()+1));
+	return end_date;
+	//return new Date(end_date.setDate(end_date.getDate()+1));
 }
 
 function getPartTimeFraction(){
@@ -943,6 +944,7 @@ function getNumDaysInMonth(year,month){
 
 function getDateDiff(dateA, dateB) {
 	//calculates B - A
+	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
 	{
 		alert(STR.alert_no_dates[LANG]);
