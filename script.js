@@ -595,6 +595,7 @@ function calcHolidays(isFirst){
 	if(selectedForm == DAILY_WORKER_FORM)
 		return;
 	var start_date = getStartDate();
+	var end_date = getEndDate();
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
