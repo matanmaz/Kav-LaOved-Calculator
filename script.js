@@ -1,4 +1,4 @@
-﻿last_update = "4.4.2015"
+﻿last_update = "11.4.2015"
 
 NUMBER_OF_FORMS = 4;
 LANG = 1;
@@ -197,19 +197,19 @@ function isSeparationEligible() {
 	return $('#formElement13-'+selectedForm).is(':checked');
 }
 
-function isInputValid(dateA, dateB){
+function isInputValid(startDate, endDate){
 	//validate input
 	if(selectedForm==0) {
 		alert('Type of worker hasn\'t been selected');
 		return false;
 	}
 	
-	if(dateA == "Invalid Date" || dateB == "Invalid Date" || dateB<dateA) {
+	if(startDate == "Invalid Date" || endDate == "Invalid Date" || endDate<startDate) {
 		alert(STR.alert_no_dates[LANG]);
 		return false;
 	}
 	
-	dateDiff = getDateDiff(dateA, dateB)
+	dateDiff = getDateDiff(startDate, endDate)
 	if(dateDiff[0]<1 && isSeparationEligible()){
 		alert(STR.output_compen_less_than_year_alert[LANG]);
 		return false;
@@ -232,8 +232,14 @@ function isInputValid(dateA, dateB){
 }
 
 function getEndDate() {
-	end_date = new Date($("#formElement3-"+selectedForm).val());
+	var end_date = new Date($("#formElement3-"+selectedForm).val());
 	return end_date;
+	//return new Date(end_date.setDate(end_date.getDate()+1));
+}
+
+function getStartDate() {
+	var start_date = new Date($("#formElement2-"+selectedForm).val());
+	return start_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
 }
 
@@ -330,22 +336,20 @@ function getVacationDays (year, months) {
 }
 
 function calcRecuper(isFirst){
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
+	var end_date = getEndDate()
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
 	//convert dates to months and years of work
-	dateDiff = getDateDiff(dateA, dateB);
+	dateDiff = getDateDiff(start_date, end_date);
 
 	//define output table headers
 	headers = [STR.years[LANG], STR.days_potential[LANG], STR.days_net[LANG], STR.amount_per_year[LANG]];
 
 	partial = getPartTimeFraction();//part time consideration
 
-	recuperation_value = getRecuperationValue(dateB);//value of each recuperation day
+	recuperation_value = getRecuperationValue(end_date);//value of each recuperation day
 	recuperation_total = 0;//running total
 	recuperation_total_without_oldness = 0;
 
@@ -374,7 +378,13 @@ function calcRecuper(isFirst){
 	}
 
 	//get visual
-	createOutputTable(isFirst, STR.output_recuper[LANG] + " (" + STR.recuper_day[LANG] + ": " + recuperation_value + " " + STR.shekels[LANG] + ")", dateDiff, headers, rows,['%d','%.2f','%.2f','%.2f']);
+	createOutputTable(isFirst, 
+		STR.output_recuper[LANG] + " (" + STR.recuper_day[LANG] + ": " + recuperation_value + " " + STR.shekels[LANG] + ")", 
+		start_date,
+		end_date, 
+		headers, 
+		rows,
+		['%d','%.2f','%.2f','%.2f']);
 	
 	output = $("#div_output");
 
@@ -387,15 +397,13 @@ function calcRecuper(isFirst){
 }
 
 function calcVacation(isFirst){
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
+	var end_date = getEndDate()
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
 	//convert dates to months and years of work
-	dateDiff = getDateDiff(dateA, dateB);
+	dateDiff = getDateDiff(start_date, end_date);
 
 	//define output table headers
 	headers = [STR.years[LANG], STR.vacation_days_potential[LANG], STR.vacation_days_net[LANG], STR.amount_per_year[LANG]];
@@ -431,7 +439,13 @@ function calcVacation(isFirst){
 	}
 
 	//get visual
-	createOutputTable(isFirst, sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_vacation[LANG], STR.vacation_day[LANG], vacationDayValue), dateDiff, headers, rows,['%d','%d','%d','%.2f']);
+	createOutputTable(isFirst, 
+		sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_vacation[LANG], STR.vacation_day[LANG], vacationDayValue), 
+		start_date,
+		end_date, 
+		headers, 
+		rows,
+		['%d','%d','%d','%.2f']);
 	output = $("#div_output");
 
 	if($('#formElement14-'+selectedForm).is(':checked'))
@@ -445,15 +459,13 @@ function calcVacation(isFirst){
 sepPayTotal = 0;
 
 function calcPension(isFirst){
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
+	var end_date = getEndDate()
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
 	//convert dates to months and years of work
-	dateDiff = getDateDiff(dateA, dateB);
+	dateDiff = getDateDiff(start_date, end_date);
 	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
 	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	//define output table headers
@@ -476,20 +488,20 @@ function calcPension(isFirst){
 	total_months = 0;
 	months_waited = 0;
 	doneWaiting = false;
-	periodStart = new Date(dateA);
+	periodStart = new Date(start_date);
 	running_index = 0;
 
 	//handle case that work started before pension_data:
-	if(dateA < pension_data[running_index][0]){
-		months_waited += getMonthsDiff(dateA, pension_data[running_index][0]);
+	if(start_date < pension_data[running_index][0]){
+		months_waited += getMonthsDiff(start_date, pension_data[running_index][0]);
 		periodStart = new Date(pension_data[running_index][0]);
 	}
 	else{
 		//find the first pension_data by running on running index
-		getPensionDataIndex(dateA);
+		getPensionDataIndex(start_date);
 	}
 
-	while(running_index<pension_data.length && pension_data[running_index][0]<dateB){
+	while(running_index<pension_data.length && pension_data[running_index][0]<end_date){
 		num_months = 0;
 		startIndex = running_index;
 		periodMinWage = pension_data[running_index][1];
@@ -498,17 +510,17 @@ function calcPension(isFirst){
 
 		periodTotal = 0;
 		while(pension_data.length > running_index 
-			&& pension_data[running_index][0] < dateB 
+			&& pension_data[running_index][0] < end_date 
 			&& isPensionSame(startIndex,running_index, Math.floor(total_months/12))){
 			running_index++;
 		}
 		if(pension_data.length == running_index){
-			periodEnd = new Date(dateB);
+			periodEnd = new Date(end_date);
 			period = getMonthsDiff(periodStart, periodEnd);
 			periodEnd.setDate(periodEnd.getDate()-1);
 		}
-		else if(pension_data[running_index][0] >= dateB){
-			periodEnd = new Date(dateB);
+		else if(pension_data[running_index][0] >= end_date){
+			periodEnd = new Date(end_date);
 			period = getMonthsDiff(periodStart, periodEnd);
 		}
 		else
@@ -561,7 +573,13 @@ function calcPension(isFirst){
 	}
 
 	//get visual	
-	createOutputTable(isFirst, "</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG] + "</u> " + STR.output_pension_expl[LANG], dateDiff, headers, rows, printFormat);
+	createOutputTable(isFirst, 
+		"</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG] + "</u> " + STR.output_pension_expl[LANG], 
+		start_date,
+		end_date, 
+		headers, 
+		rows, 
+		printFormat);
 	output = $("#div_output");
 	output_body.append(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], 
 		total_value));
@@ -576,33 +594,32 @@ function calcPension(isFirst){
 function calcHolidays(isFirst){
 	if(selectedForm == DAILY_WORKER_FORM)
 		return;
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
+	//convert dates to months and years of work
+	dateDiff = getDateDiff(start_date, end_date);
+
 	numHolidays = $('#formElement7-'+selectedForm).val();
-	dateDiff = getDateDiff(dateA, dateB);
 	if(numHolidays!="0" && numHolidays!="")
 		output_body.append(sprintf("<p>%s: %s</p>",
 			STR.num_holidays[LANG], numHolidays, STR.total_amount_holidays[LANG]));
 }
 
 function calcCompen (isFirst) {
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
+	var end_date = getEndDate()
 	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
 	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
+	//convert dates to months and years of work
+	dateDiff = getDateDiff(start_date, end_date);
+
 	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
-	dateDiff = getDateDiff(dateA, dateB);
 
 	//case when compensation is not to be show:
 	//if worker isn't eligible
@@ -611,7 +628,13 @@ function calcCompen (isFirst) {
 
 	month_value = getMonthWage(min_month_value, dateDiff[0]);
 	
-	createOutputTable(isFirst, STR.output_compen[LANG], dateDiff, [], [], []);
+	createOutputTable(isFirst, 
+		STR.output_compen[LANG], 
+		start_date, 
+		end_date,
+		[], 
+		[], 
+		[]);
 	output = $("#div_output");
 	
 	//alert that worker isn't eligible due to working less than a year
@@ -638,26 +661,26 @@ function calcCompen (isFirst) {
 }
 
 function calcEarly (isFirst) {
-	start_date = $("#formElement2-"+selectedForm).val();
-	end_date = getEndDate()
-	dateA = new Date(start_date);
-	dateB = new Date(end_date);
+	var start_date = getStartDate();
+	var end_date = getEndDate()
 	if(isFirst)
-		if(!isInputValid(dateA, dateB))
+		if(!isInputValid(start_date, end_date))
 			return;
+	//convert dates to months and years of work
+	dateDiff = getDateDiff(start_date, end_date);
+
 	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
-	dateDiff = getDateDiff(dateA, dateB);
 
 	//case when early notice is not to be show:
 	//if worker isn't eligible and has worked at least a year 
 	if(!$('#formElement13-'+selectedForm).is(':checked') && dateDiff[0]>0)
 		return;
 
-	numDays = getNumDaysEarlyNotice(dateDiff, dateB);
+	numDays = getNumDaysEarlyNotice(dateDiff, end_date);
 	isMonthEarlyNotice = numDays==-2;
 
 	if(!isMonthEarlyNotice){
-		runningDate = new Date(dateB);
+		runningDate = new Date(end_date);
 
 		runningDate.setDate(runningDate.getDate()+1);
 		workDays = 0;
@@ -676,14 +699,18 @@ function calcEarly (isFirst) {
 	else{
 		earlyPay = getMonthWage(min_month_value, dateDiff[0]);
 	}
-	output_table_id = createOutputTable(isFirst, STR.output_early[LANG], dateDiff, [], [], []);
+	output_table_id = createOutputTable(isFirst, 
+		STR.output_early[LANG], 
+		start_date, 
+		end_date,
+		[], [], []);
 	table = $("#output_table"+output_table_id);
 	if(isMonthEarlyNotice)
 		table.append(sprintf("<tr><td>%s:</td><td><b>%s</b></td></tr>",
 			STR.compen_label2[LANG], STR.month[LANG]));
 	else
 		table.append(sprintf("<tr><td>%s:</td><td><b>%.1f</b></td></tr>",
-			STR.compen_label2[LANG], getNumDaysEarlyNotice(dateDiff, dateB)));
+			STR.compen_label2[LANG], getNumDaysEarlyNotice(dateDiff, end_date)));
 	if(selectedForm != DAILY_WORKER_FORM){
 		if(!isMonthEarlyNotice){
 			table.append(sprintf("<tr><td>%s:</td><td><b>%.1f</b></td></tr>",
@@ -720,7 +747,7 @@ function getNumWorkDaysInMonth () {
 	}
 }
 
-function getNumDaysEarlyNotice (dateDiff, dateB) {
+function getNumDaysEarlyNotice (dateDiff) {
 	numDays = 0;
 	if(selectedForm == DAILY_WORKER_FORM){
 		if(dateDiff[0]<1)
@@ -747,8 +774,8 @@ function getNumDaysEarlyNotice (dateDiff, dateB) {
 	return numDays;
 }
 
-function getMonthsDiff (dateA, dateB) {
-	periodDateDiff = getDateDiff(dateA, dateB);
+function getMonthsDiff (startDate, endDate) {
+	periodDateDiff = getDateDiff(startDate, endDate);
 	return periodDateDiff[0]*12+periodDateDiff[1];
 }
 
@@ -861,7 +888,7 @@ function isPensionSame (indexA, indexB, yearNum) {
 
 tableId = 0;
 
-function createOutputTable(isFirst, title, dateDiff, headers, rows, formats){
+function createOutputTable(isFirst, title, startDate, endDate, headers, rows, formats){
 	employee_name = $('#formElement1-'+selectedForm).val();
 	employer_name = $('#formElement22-'+selectedForm).val();
 	comments = $('#formElement23-'+selectedForm).val();
@@ -871,7 +898,7 @@ function createOutputTable(isFirst, title, dateDiff, headers, rows, formats){
 	output_body = $("#div_output_body");
 	output_footer = $("#div_output_footer");
 	table2 = $("<table border='1' id='output_table"+(tableId++)+"'></table>");
-	
+	dateDiff = getDateDiff(startDate, endDate);
 	if(isFirst){
 		table1 = $("<table width='100%'></table>");
 		table1.append(sprintf("<tr><td width='10%%'>%s</td><td style='text-align:left;' width='90%%'>%s</td></tr>",dateToString(new Date(),1),showImage?"<img src='cropped-logo.gif'/>":"",1));
@@ -882,7 +909,7 @@ function createOutputTable(isFirst, title, dateDiff, headers, rows, formats){
 		output_header.append(sprintf("%s: %d, &nbsp&nbsp&nbsp&nbsp %s: %.2f<br/>",
 			STR.years[LANG], dateDiff[0], STR.months[LANG], dateDiff[1]));
 		output_header.append(sprintf("%s: (%s) - (%s)<br/>",
-			STR.work_period[LANG], dateToString(dateA,1), dateToString(dateB,1)));
+			STR.work_period[LANG], dateToString(startDate,1), dateToString(endDate,1)));
 		output_header.append(sprintf("%s: %.1f%%<br/>", STR.work_percentage[LANG], 
 			getPartTimeFraction()*100))
 		output_header.append(sprintf("%s: %s<br/><br/>",STR.comments[LANG], comments));
@@ -940,8 +967,10 @@ function getNumDaysInMonth(year,month){
 	return (new Date(year,month,0)).getDate();
 }
 
-function getDateDiff(dateA, dateB) {
+function getDateDiff(startDate, endDate) {
 	//calculates B - A
+	dateA = new Date(startDate);
+	dateB = new Date(endDate);
 	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
 	{
