@@ -47,7 +47,7 @@ Worker.prototype = {
 
   isSeparationEligible: function() {
     //simple enough
-    return isEligibleToSeperation;
+    return this.isEligibleToSeperation;
   },
 
   getPartTimeFraction: function() {
@@ -152,7 +152,7 @@ function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, dailyW
 HourlyWorker.prototype = {
 
   getPartTimeFraction: function() {
-    hours = hoursPerWeek;
+    hours = this.hoursPerWeek;
     hours = hours > HOURS_IN_WEEK ? HOURS_IN_WEEK : hours;
     if(!hours)
       alert(STR.alert_no_hours_in_week[LANG]);
@@ -199,17 +199,17 @@ HourlyWorker.prototype = {
   },
 
   getMonthWage: function (minMonthValue, yearNum) {
-    var num_hours_in_day = hoursPerWeek / hoursPerWeek;
-    var hour_value = dailyWage / num_hours_in_day;
+    var num_hours_in_day = this.hoursPerWeek / this.daysPerWeek;
+    var hour_value = this.dailyWage / num_hours_in_day;
     var min_hour_value = minMonthValue / WEEKS_IN_MONTH / HOURS_IN_WEEK;
-    if(isUndefined(dailyWage) || hour_value<min_hour_value)
-      return min_hour_value * hoursPerWeek * WEEKS_IN_MONTH;
-    return dailyWage * num_days_in_week * WEEKS_IN_MONTH;
+    if(isUndefined(this.dailyWage) || hour_value<min_hour_value)
+      return min_hour_value * this.hoursPerWeek * WEEKS_IN_MONTH;
+    return this.dailyWage * num_days_in_week * WEEKS_IN_MONTH;
   },
 
   getDayWage: function (minMonthValue, yearNum) {
     var month_value = getMonthWage (minMonthValue, yearNum);
-    return month_value / daysPerWeek / WEEKS_IN_MONTH;
+    return month_value / this.daysPerWeek / WEEKS_IN_MONTH;
   },
 }
 
@@ -224,7 +224,7 @@ function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, month
 
 MonthlyWorker.prototype = {
   getPartTimeFraction: function() {
-    return workPercentage/100;
+    return this.workPercentage/100;
   },
   getMonthWage: function (minMonthValue, yearNum) {
     //the objects monthly wage variable is the user input, not the actual wage

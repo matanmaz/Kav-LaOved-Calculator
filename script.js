@@ -11,6 +11,7 @@ AGRICULTURAL_WORKER_FORM = 3;
 MONTHLHY_WORKER_FORM = 4;
 
 function getQueryParams(qs) {
+	//utility
     qs = qs.split("+").join(" ");
     var params = {},
         tokens,
@@ -304,26 +305,6 @@ function getPartTimeFraction(){
 	return partial;
 }
 
-function getRecuperationDays(year, ignorePartial){
-	var partial = getPartTimeFraction();
-	if(ignorePartial)
-		partial = 1;
-	if(selectedForm == AGRICULTURAL_WORKER_FORM)
-		return partial*recuperation_days_agr;
-	else
-	{
-		if(year-1 < recuperation_days.length)
-			return partial*recuperation_days[year-1];
-		else
-			return partial*recuperation_days[recuperation_days.length-1];
-	}
-}
-
-function getRecuperationValue(date){
-	//constant
-	return latest_recuperation_value;
-}
-
 function getOldness(period, yearsBack){
 	//util function
 	if($('#formElement14-'+selectedForm).is(':checked'))
@@ -340,47 +321,6 @@ function getPensionDataIndex(date) {
 	return running_index
 }
 
-function getVacationDayValue(yearNum){
-	//Calculate the value of a vacation day based minimum wage on the pension data of the end of work date
-	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
-	month_value = getMonthWage(min_month_value, yearNum);
-	return month_value / getNumWorkDaysInMonth();
-}
-
-function getVacationDays (year, months) {	
-	year = year - 1;
-	num_days_in_week = $('#formElement8-2').val();
-	fiveDayWeekVacation = year >= five_day_week_vacations.length ? five_day_week_vacations[five_day_week_vacations.length-1] : five_day_week_vacations[year];
-	sixDayWeekVacation = year >= six_day_week_vacations.length ? six_day_week_vacations[six_day_week_vacations.length-1] : six_day_week_vacations[year];
-	if(num_days_in_week>=1)
-	{
-		lastYearInTable = x_day_week_vacations[num_days_in_week-1].length;
-		xDayWeekVacation = year >= lastYearInTable ? x_day_week_vacations[num_days_in_week-1][lastYearInTable-1] : x_day_week_vacations[num_days_in_week-1][year];
-	}
-	
-	if(selectedForm == DAILY_WORKER_FORM)
-	{	
-		if(num_days_in_week>=1)
-			vacation_days = xDayWeekVacation*months/12;
-		else if(months==12)
-			vacation_days = fiveDayWeekVacation * num_days_in_week * 52 / 200;
-		else vacation_days = fiveDayWeekVacation * num_days_in_week *
-			months * WEEKS_IN_MONTH / 240;
-	}
-	else if(selectedForm == AGRICULTURAL_WORKER_FORM){
-		vacation_days = agr_vacations[year]*months/12;
-	}
-	
-	else if($('#formElement19-4').is(':checked'))
-		vacation_days = fiveDayWeekVacation*months/12;
-	else vacation_days = sixDayWeekVacation*months/12;
-	
-	if(vacation_days - Math.floor(vacation_days) >= 0.9)
-		return Math.floor(vacation_days)+1;
-	else
-		return Math.floor(vacation_days);
-}
-
 function calcRecuper(isFirst){
 	var start_date = getStartDate();
 	var end_date = getEndDate()
@@ -395,7 +335,7 @@ function calcRecuper(isFirst){
 
 	partial = getPartTimeFraction();//part time consideration
 
-	recuperation_value = getRecuperationValue(end_date);//value of each recuperation day
+	recuperation_value = worker.getRecuperationValue(end_date);//value of each recuperation day
 	recuperation_total = 0;//running total
 	recuperation_total_without_oldness = 0;
 
@@ -405,21 +345,21 @@ function calcRecuper(isFirst){
 	//calculate and ignore oldness and calculate what will be shown
 	for(i=1;i<=dateDiff[0];i++)
 	{
-		days = getRecuperationDays(i);
+		days = worker.getRecuperationDays(i);
 		irecuperation_value = days * recuperation_value;
 		recuperation_total_without_oldness += irecuperation_value;
-		rows[i-1]=[i, getRecuperationDays(i, true), days, irecuperation_value];
+		rows[i-1]=[i, worker.getRecuperationDays(i, true), days, irecuperation_value];
 		if(dateDiff[0] - i < 2)//oldness calc: include last two years
 		{
 			recuperation_total += rows[i-1][3];
 		}
 	}
 	//if worked part of a year this is the remainder
-	remainder = getRecuperationDays(i) * dateDiff[1]/12;
+	remainder = worker.getRecuperationDays(i) * dateDiff[1]/12;
 	
 	if(dateDiff[0]>0 && remainder>0){
 		recuperation_total_without_oldness += remainder * recuperation_value;
-		rows[i-1] = [i, getRecuperationDays(i, true), remainder, remainder * recuperation_value];
+		rows[i-1] = [i, worker.getRecuperationDays(i, true), remainder, remainder * recuperation_value];
 		recuperation_total += rows[i-1][3];
 	}
 
@@ -460,27 +400,27 @@ function calcVacation(isFirst){
 	//start filling the table
 	rows = [];
 
-	vacationDayValue = getVacationDayValue(dateDiff[0]);
+	vacationDayValue = worker.getVacationDayValue(dateDiff[0]);
 
 	//this 'for loop' handles whole years
 	//remainder is taken care of later
 	for(i=1;i<=dateDiff[0];i++)
 	{
-		days = getVacationDays(i,12);
+		days = worker.getVacationDays(i,12);
 		i_day_value = days * vacationDayValue;
 		total_value_without_oldness += i_day_value;
-		rows[i-1]=[i, getVacationDays(i,12), days, i_day_value];
+		rows[i-1]=[i, worker.getVacationDays(i,12), days, i_day_value];
 		if(dateDiff[0] - i < 3)//oldness calc: include last three years
 		{
 			total_value += rows[i-1][3];
 		}
 	}
 	//if worked part of a year this is the remainder
-	remainder = getVacationDays(i, dateDiff[1]);
+	remainder = worker.getVacationDays(i, dateDiff[1]);
 	
 	if(dateDiff[1]>0 && remainder>0){
 		total_value_without_oldness += remainder * vacationDayValue;
-		rows[i-1] = [i, getVacationDays(i,12), remainder, remainder * vacationDayValue];
+		rows[i-1] = [i, worker.getVacationDays(i,12), remainder, remainder * vacationDayValue];
 		total_value += rows[i-1][3];
 	}
 
@@ -557,7 +497,7 @@ function calcPension(isFirst){
 		periodTotal = 0;
 		while(pension_data.length > running_index 
 			&& pension_data[running_index][0] < end_date 
-			&& isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
+			&& worker.isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
 			running_index++;
 		}
 		if(pension_data.length == running_index){
@@ -593,7 +533,7 @@ function calcPension(isFirst){
 			
 			if(doneWaiting){
 				num_months += partial; total_months+= partial;
-				periodTotal += partial * getMonthWage(periodMinWage, Math.floor(total_months/12)) * periodPercentage;
+				periodTotal += partial * worker.getMonthWage(periodMinWage, Math.floor(total_months/12)) * periodPercentage;
 			}
 
 			period--;
@@ -608,10 +548,10 @@ function calcPension(isFirst){
 		
 		//different columns depending on sep:
 		if(sep_elig && (!sep_elig_show_details) ){
-			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal]);
+			rows.push([period, num_months, worker.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal]);
 		}
 		else {
-			rows.push([period, num_months, getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
+			rows.push([period, num_months, worker.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
 		}
 
 		periodStart = new Date(periodEnd);
@@ -673,7 +613,7 @@ function calcCompen (isFirst) {
 	if(!$('#formElement13-'+selectedForm).is(':checked'))
 		return;
 
-	month_value = getMonthWage(min_month_value, dateDiff[0]);
+	month_value = worker.getMonthWage(min_month_value, dateDiff[0]);
 	
 	createOutputTable(isFirst, 
 		STR.output_compen[LANG], 
@@ -723,7 +663,7 @@ function calcEarly (isFirst) {
 	if(!$('#formElement13-'+selectedForm).is(':checked') && dateDiff[0]>0)
 		return;
 
-	numDays = getNumDaysEarlyNotice(dateDiff, end_date);
+	numDays = worker.getNumDaysEarlyNotice(dateDiff, end_date);
 	isMonthEarlyNotice = numDays==-2;
 
 	if(!isMonthEarlyNotice){
@@ -741,10 +681,10 @@ function calcEarly (isFirst) {
 			numDays--;
 		}
 
-		earlyPay = getDayWage(min_month_value, dateDiff[0]) * workDays;
+		earlyPay = worker.getDayWage(min_month_value, dateDiff[0]) * workDays;
 	}
 	else{
-		earlyPay = getMonthWage(min_month_value, dateDiff[0]);
+		earlyPay = worker.getMonthWage(min_month_value, dateDiff[0]);
 	}
 	output_table_id = createOutputTable(isFirst, 
 		STR.output_early[LANG], 
@@ -757,7 +697,7 @@ function calcEarly (isFirst) {
 			STR.compen_label2[LANG], STR.month[LANG]));
 	else
 		table.append(sprintf("<tr><td>%s:</td><td><b>%.1f</b></td></tr>",
-			STR.compen_label2[LANG], getNumDaysEarlyNotice(dateDiff, end_date)));
+			STR.compen_label2[LANG], worker.getNumDaysEarlyNotice(dateDiff, end_date)));
 	if(selectedForm != DAILY_WORKER_FORM){
 		if(!isMonthEarlyNotice){
 			table.append(sprintf("<tr><td>%s:</td><td><b>%.1f</b></td></tr>",
@@ -792,33 +732,6 @@ function getNumWorkDaysInMonth () {
 		else
 			return SIX_WORK_DAYS_IN_MONTH;
 	}
-}
-
-function getNumDaysEarlyNotice (dateDiff) {
-	numDays = 0;
-	if(selectedForm == DAILY_WORKER_FORM){
-		if(dateDiff[0]<1)
-			numDays = dateDiff[1];
-		else if(dateDiff[0]<2)
-			numDays = 14 + dateDiff[1]/2;
-		else if(dateDiff[0]<3)
-			numDays = 21 + dateDiff[1]/2;
-		else
-		{
-			return -2;
-		}
-	}
-	else{
-		if(dateDiff[0]<1 && dateDiff[1]<6)
-			numDays = dateDiff[1];
-		else if(dateDiff[0]==0)
-			numDays = 2.5*(dateDiff[1]-6)+6;
-		else
-		{
-			return -2;
-		}
-	}
-	return numDays;
 }
 
 function getMonthsDiff (startDate, endDate) {
@@ -863,77 +776,6 @@ function addMonth (date, month) {
 	newDate = new Date(date);
 	newDate.setMonth(date.getMonth()+month);
 	return newDate;
-}
-
-function getMonthWage (min_month_value, yearNum) {
-	if(selectedForm == DAILY_WORKER_FORM){
-		day_value = $('#formElement5-2').val();
-		num_days_in_week = $('#formElement8-2').val();
-		num_hours_in_week = $('#formElement9-2').val();
-		num_hours_in_day = num_hours_in_week / num_days_in_week;
-		hour_value = day_value / num_hours_in_day;
-		min_hour_value = min_month_value / WEEKS_IN_MONTH / HOURS_IN_WEEK;
-		if(day_value=="" || num_hours_in_week=="" || hour_value<min_hour_value)
-			return min_hour_value * num_hours_in_week * WEEKS_IN_MONTH;
-		return day_value * num_days_in_week * WEEKS_IN_MONTH;
-	}
-	month_value = 1*$('#formElement4-'+selectedForm).val();
-	if(selectedForm == CARETAKER_FORM || selectedForm == AGRICULTURAL_WORKER_FORM)
-	{
-		//add pocket money
-		month_value += $('#formElement6-'+selectedForm).val() * WEEKS_IN_MONTH;
-	}
-	//adjust minimum wage to the percentage of work of full time
-	if(selectedForm == MONTHLHY_WORKER_FORM)
-		min_month_value = min_month_value*getPartTimeFraction();
-
-	//minimum wage for agricultural workers is higher according to years they've worked
-	if(selectedForm == AGRICULTURAL_WORKER_FORM)
-	{
-		if(yearNum < agr_min_wage_bonus.length) 
-			min_month_value += agr_min_wage_bonus[yearNum];
-		else
-			min_month_value += agr_min_wage_bonus[agr_min_wage_bonus.length - 1];
-	}
-	
-	if(min_month_value > month_value){
-		month_value = min_month_value;
-	}
-	
-	return month_value;
-}
-
-function getDayWage (min_month_value, yearNum) {
-	month_value = getMonthWage (min_month_value, yearNum);
-	if(selectedForm == DAILY_WORKER_FORM){
-		num_days_in_week = $('#formElement8-2').val();
-		return month_value / num_days_in_week / WEEKS_IN_MONTH;
-	}
-	if(selectedForm == CARETAKER_FORM || selectedForm == AGRICULTURAL_WORKER_FORM)
-	{
-		return month_value / SIX_WORK_DAYS_IN_MONTH;
-	}
-
-	if(selectedForm == MONTHLHY_WORKER_FORM)
-	{
-		if($('#formElement19-4').is(':checked'))
-			return month_value / FIVE_WORK_DAYS_IN_MONTH;
-		else
-			return month_value / SIX_WORK_DAYS_IN_MONTH;
-	}
-}
-
-function isPensionSame (indexA, indexB, yearNum, periodMinWage) {
-	//whether the pension in the index is the same considering the wage and the percentage
-	minWageA = pension_data[indexA][1];
-	minWageB = pension_data[indexB][1];
-	monthWage = getMonthWage(periodMinWage, yearNum)
-	isEarningMinWage = monthWage <= minWageB*getPartTimeFraction();
-	var startIndex = isEarningMinWage ? 1 : 2;
-	for(i=startIndex;i<pension_data[indexA].length;i++)
-		if(pension_data[indexA][i]!=pension_data[indexB][i])
-			return false;
-	return true;
 }
 
 tableId = 0;
@@ -999,19 +841,11 @@ function resetOutput () {
 	output_body.empty();
 	output_footer = $("#div_output_footer");
 	output_footer.empty();
-	
 }
 
 function getHolidayTotal (yearNum, numHolidays) {
 	//utility
 	return getHolidayValue(yearNum) * numHolidays;
-}
-
-function getHolidayValue (yearNum) {
-	ratio = holiday_ratio;
-	if(selectedForm == AGRICULTURAL_WORKER_FORM)
-		ratio = agr_holiday_ratio;
-	return ratio * getVacationDayValue(yearNum);
 }
 
 function getNumDaysInMonth(year,month){
