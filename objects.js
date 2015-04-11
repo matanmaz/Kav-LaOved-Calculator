@@ -229,7 +229,7 @@ MonthlyWorker.prototype = {
   getMonthWage: function (minMonthValue, yearNum) {
     //the objects monthly wage variable is the user input, not the actual wage
     var monthWage = this.monthlyWage
-    minMonthValue = minMonthValue*(workPercentage/100);
+    minMonthValue = minMonthValue*(this.workPercentage/100);
     if(minMonthValue > monthWage){
       monthWage = minMonthValue;
     }

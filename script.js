@@ -157,19 +157,50 @@ function initPage() {
 	$("#form3").append(sprintf(formElement14,3));
 	$("#form4").append(sprintf(formElement14,4));
 
-	formElement15 = "<tr><td><input type='button' value='"+STR.calc_recuper_vacation_and_holidays[LANG] + "' id='formElement15-%d' onClick='resetOutput();calcRecuper(true);calcVacation();calcHolidays()'/></td><td></td></tr>";
+	formElement15 = "<tr><td><input type='button' value='"+STR.calc_recuper_vacation_and_holidays[LANG] + "' id='formElement15-%d' onClick='resetOutput();main([calcRecuper,calcVacation,calcHolidays]);'/></td><td></td></tr>";
     $("#form1").append(sprintf(formElement15,1));
 	$("#form2").append(sprintf(formElement15,2));
 	$("#form3").append(sprintf(formElement15,3));
 	$("#form4").append(sprintf(formElement15,4));
 
-	formElement17 = "<tr><td><input type='button' value='"+STR.calc_compen[LANG] + "' id='formElement17-%d' onClick='resetOutput();calcPension(true);calcCompen();calcEarly();'/></td><td></td></tr>";
+	formElement17 = "<tr><td><input type='button' value='"+STR.calc_compen[LANG] + "' id='formElement17-%d' onClick='resetOutput();main([calcPension,calcCompen,calcEarly]);'/></td><td></td></tr>";
     $("#form1").append(sprintf(formElement17,1));
 	$("#form2").append(sprintf(formElement17,2));
 	$("#form3").append(sprintf(formElement17,3));
 	$("#form4").append(sprintf(formElement17,4));
 
     showForm();
+}
+
+var worker;
+
+function main(funcs) {
+	var month_value = 1*$('#formElement4-'+selectedForm).val();
+	var allowance = 1*$('#formElement6-'+selectedForm).val();
+	var day_value = $('#formElement5-2').val();
+	var num_days_in_week = $('#formElement8-2').val();
+	var num_hours_in_week = $('#formElement9-2').val();
+	var work_percentage = $('#formElement20-4').val();
+	switch(selectedForm){
+		case CARETAKER_FORM:
+			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, allowance);
+			break;
+		case DAILY_WORKER_FORM:
+			worker = new HourlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), day_value, num_days_in_week, num_hours_in_week);
+			break;
+		case AGRICULTURAL_WORKER_FORM:
+			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, allowance);
+			break;
+		case MONTHLHY_WORKER_FORM:
+			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, work_percentage);
+			break;
+	}
+	for (var i = 0; i < funcs.length; i++) {
+		if(i==0)
+			funcs[i](true);
+		else
+			funcs[1]();
+	};
 }
 
 function checkedEligCompen(){
