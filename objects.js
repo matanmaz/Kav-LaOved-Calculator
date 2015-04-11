@@ -27,7 +27,9 @@ function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
 }
 
 Worker.prototype = {
-	
+	getMonthWage: function (min_month_value, yearNum) {
+		return min_month_value;
+	}
 }
 
 function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, daysPerWeek, hoursPerWeek, dailyWage) {
@@ -46,9 +48,23 @@ function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, month
 
 extend(Worker, MonthlyWorker);
 
-//var AgriculturalWorker = Object.create(MonthlyWorker);
+function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
+}
+
+extend(MonthlyWorker, AgriculturalWorker);
+
 //סיעוד
-//var Caretaker = Object.create(MonthlyWorker);
+function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
+}
+
+extend(MonthlyWorker, Caretaker);
+
 //עובדי נקיון
-//var CleaningWorker = Object.create(HourlyWorker);
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, daysPerWeek, hoursPerWeek, dailyWage) {
+	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, daysPerWeek, hoursPerWeek, dailyWage);
+}
+
+extend(MonthlyWorker, CleaningWorker);
 
