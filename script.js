@@ -193,7 +193,19 @@ function showForm(formId){
 	checkedEligCompen()
 }
 
+function getItem(array, index) {
+	//returns the item from an array, if index is biggr than array returns the last one
+	index = index >= array.length ? array.length - 1 : index;
+    return array[index];
+}
+
+function isUndefined(variable) {
+	//utility
+	return variable == undefined || variable == "";
+}
+
 function isSeparationEligible() {
+	//simple
 	return $('#formElement13-'+selectedForm).is(':checked');
 }
 
@@ -277,16 +289,19 @@ function getRecuperationDays(year, ignorePartial){
 }
 
 function getRecuperationValue(date){
+	//constant
 	return latest_recuperation_value;
 }
 
 function getOldness(period, yearsBack){
+	//util function
 	if($('#formElement14-'+selectedForm).is(':checked'))
 		return period[0]>=yearsBack ? [period[0]-yearsBack, period[1]] : [0,0];
 	return [0,0];
 }
 
 function getPensionDataIndex(date) {
+	//util function
 	running_index = 0;
 	while(date >= pension_data[running_index][0])
 			running_index++;
@@ -511,7 +526,7 @@ function calcPension(isFirst){
 		periodTotal = 0;
 		while(pension_data.length > running_index 
 			&& pension_data[running_index][0] < end_date 
-			&& isPensionSame(startIndex,running_index, Math.floor(total_months/12))){
+			&& isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
 			running_index++;
 		}
 		if(pension_data.length == running_index){
@@ -725,9 +740,9 @@ function calcEarly (isFirst) {
 function getNumDaysInWeek () {
 	if(selectedForm == CARETAKER_FORM || selectedForm == AGRICULTURAL_WORKER_FORM)
 		return 6;
-	if(selectedForm == 2)
+	if(selectedForm == DAILY_WORKER_FORM)
 		return $('#formElement8-2').val();
-	if(selectedForm == 4){
+	if(selectedForm == MONTHLHY_WORKER_FORM){
 		if($('#formElement19-4').is(':checked'))
 			return 5;
 		else
@@ -776,11 +791,13 @@ function getNumDaysEarlyNotice (dateDiff) {
 }
 
 function getMonthsDiff (startDate, endDate) {
+	//utility
 	periodDateDiff = getDateDiff(startDate, endDate);
 	return periodDateDiff[0]*12+periodDateDiff[1];
 }
 
 function getPensionWaiting (date) {
+	//utility
 	i=0;
 	pension_waiting = pension_waiting_data[0][1];
 	while(i < pension_waiting_data.length && date >= pension_waiting_data[i][0]){
@@ -811,6 +828,7 @@ function dateToString (date, format) {
 }
 
 function addMonth (date, month) {
+	//utility
 	newDate = new Date(date);
 	newDate.setMonth(date.getMonth()+month);
 	return newDate;
@@ -874,7 +892,7 @@ function getDayWage (min_month_value, yearNum) {
 	}
 }
 
-function isPensionSame (indexA, indexB, yearNum) {
+function isPensionSame (indexA, indexB, yearNum, periodMinWage) {
 	//whether the pension in the index is the same considering the wage and the percentage
 	minWageA = pension_data[indexA][1];
 	minWageB = pension_data[indexB][1];
@@ -954,6 +972,7 @@ function resetOutput () {
 }
 
 function getHolidayTotal (yearNum, numHolidays) {
+	//utility
 	return getHolidayValue(yearNum) * numHolidays;
 }
 
@@ -965,13 +984,15 @@ function getHolidayValue (yearNum) {
 }
 
 function getNumDaysInMonth(year,month){
+	//utility
 	return (new Date(year,month,0)).getDate();
 }
 
 function getDateDiff(startDate, endDate) {
+	//utility
 	//calculates B - A
-	dateA = new Date(startDate);
-	dateB = new Date(endDate);
+	var dateA = new Date(startDate);
+	var dateB = new Date(endDate);
 	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
 	{

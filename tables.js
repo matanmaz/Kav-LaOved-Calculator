@@ -11,6 +11,8 @@ recuperation_days = [5,6,6,7,7,7,7,7,7,7,8,8,8,8,8,9,9,9,9,10];
 latest_recuperation_value = 378;
 recuperation_days_agr = 7;
 
+DEFAULT_WORK_WEEK = 6;
+
 six_day_week_vacations = [12,12,12,12,14,16,18,19,20,21,22,23,24,24];
 five_day_week_vacations = [10,10,10,10,12,14,15,16,17,18,19,20,20];
 four_day_week_vacations = [8,8,8,8,10,11,12,13,14,15,15,16,16,16];
