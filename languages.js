@@ -67,7 +67,7 @@
 	subtotal_period : ['Period Total','סכום תקופה'],
 	print : ['Print','הדפס'],
 	reset : ['Reset','אתחל'],
-	num_holidays : ['Days','מס\' חגים'],
+	num_holidays : ['Number of holidays not yet used or payed','ימי חג שלא נוצלו או שולמו'],
 	holidays : ['Holidays','חגים'],
 	editor_name : ['Calculated By','שם עורך החישוב'],
 	pension_statement : ['By law, the calculation is based on Israeli minimum wage or the actual wage - whichever is higher',' על פי חוק, החישוב נעשה על בסיס שכר המינימום בישראל או השכר בפועל - הגבוה מביניהם'],

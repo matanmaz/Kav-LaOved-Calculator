@@ -261,13 +261,13 @@ AgriculturalWorker.prototype = {
   },
 
   getMonthWage: function (minMonthValue, yearNum) {
-    //the agr addition to min wage
-    minMonthValue += getItem(agr_min_wage_bonus, yearNum);
-    var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, yearNum);
-
+    //first get the input wage by using 0 as minimum wage
+    var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, 0, yearNum);
     //add pocket money
     monthWage += this.allowance * WEEKS_IN_MONTH;
-
+    //agr addition to min wage
+    minMonthValue += getItem(agr_min_wage_bonus, yearNum);
+    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, yearNum);
     return monthWage;
   },
 
@@ -286,12 +286,12 @@ function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWa
 
 Caretaker.prototype = {
   getMonthWage: function (minMonthValue, yearNum) {
-      var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, yearNum);
-
-      //add pocket money
-      monthWage += this.allowance * WEEKS_IN_MONTH;
-      
-      return monthWage;
+      //first get the input wage by using 0 as minimum wage
+    var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, 0, yearNum);
+    //add pocket money
+    monthWage += this.allowance * WEEKS_IN_MONTH;
+    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, yearNum);
+    return monthWage;
     },
 }
 extend(MonthlyWorker, Caretaker);

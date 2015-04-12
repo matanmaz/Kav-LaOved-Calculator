@@ -200,7 +200,7 @@ function main(funcs) {
 		if(i==0)
 			funcs[i](true);
 		else
-			funcs[1]();
+			funcs[i]();
 	};
 }
 
