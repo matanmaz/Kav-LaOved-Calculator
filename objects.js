@@ -20,7 +20,7 @@ function extend(base, sub) {
   });
 }
 
-function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
+function Worker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation) {
 	this.startWorkDate = startWorkDate;
 	this.endWorkDate = endWorkDate;
 	this.isEligibleToSeperation = isEligibleToSeperation;
@@ -29,6 +29,137 @@ function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
 }
 
 Worker.prototype = {
+  getPensionTable: function(isEligibleToSeparationShowing) {
+    var total_value = 0;//running total
+
+    //start filling the table
+    var rows = [];
+
+    //init pension calculation variables
+    var total_months = 0;
+    var months_waited = 0;
+    var doneWaiting = false;
+    var periodStart = new Date(this.startWorkDate);
+    var periodEnd, period;
+    var running_index = 0;
+
+    //handle case that work started before pension_data:
+    if(this.startWorkDate < pension_data[running_index][0]){
+      months_waited += getMonthsDiff(this.startWorkDate, pension_data[running_index][0]);
+      periodStart = new Date(pension_data[running_index][0]);
+    }
+    else{
+      //find the first pension_data by running on running index
+      running_index = getPensionDataIndex(this.startWorkDate);
+    }
+
+    while(running_index<pension_data.length && pension_data[running_index][0]<this.endWorkDate){
+      var num_months = 0;
+      var startIndex = running_index;
+      var periodMinWage = pension_data[running_index][1];
+      var periodPercentage = pension_data[running_index][2];
+      var periodTotal = 0;
+
+      //run index up until pension changed, this defines the period/row
+      while(pension_data.length > running_index 
+        && pension_data[running_index][0] < this.endWorkDate 
+        && this.isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
+        running_index++;
+      }
+
+      if(pension_data.length == running_index){
+        periodEnd = new Date(this.endWorkDate);
+        period = getMonthsDiff(periodStart, periodEnd);
+        periodEnd.setDate(periodEnd.getDate()-1);
+      }
+      else if(pension_data[running_index][0] >= this.endWorkDate){
+        periodEnd = new Date(this.endWorkDate);
+        period = getMonthsDiff(periodStart, periodEnd);
+      }
+      else
+      {
+        periodEnd = new Date(pension_data[running_index][0]);
+        periodEnd.setDate(periodEnd.getDate()-1);
+        period = getMonthsDiff(periodStart, periodEnd);
+        
+      }
+      
+      i = 0;
+      while(period>0){
+        partial = 1;
+        if(period<1){
+          partial = period;
+        }
+        months_waited += partial;
+        //has the worker waited enough time to get pension?
+        pastWaiting = months_waited - getPensionWaiting(addMonth(periodStart,i));
+        if(!doneWaiting && pastWaiting>0) {
+          doneWaiting = true;
+          if(pastWaiting < 1)
+            partial = pastWaiting;
+        }
+        
+        if(doneWaiting){
+          num_months += partial; total_months+= partial;
+          periodTotal += partial * this.getMonthWage(periodMinWage, Math.floor(total_months/12)) * periodPercentage;
+        }
+
+        period--;
+      }
+      (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? total_value += periodTotal : total_value += periodTotal * 2;
+      
+      period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
+      
+      //whether we show X% or X%+X%:
+      periodPercentageString = sprintf("%.2f%%", periodPercentage*100)
+      periodPercentageString = (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodPercentageString : periodPercentageString + "+" + periodPercentageString
+      
+      //different columns depending on sep:
+      if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing) ){
+        rows.push([period, num_months, this.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal]);
+      }
+      else {
+        rows.push([period, num_months, this.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
+      }
+
+      periodStart = new Date(periodEnd);
+      periodStart.setDate(periodEnd.getDate()+1);
+    }
+    return [total_value, rows];
+  },
+
+  getRecuperationTable: function() {
+    var rows = [];
+
+    var partial = this.getPartTimeFraction();//part time consideration
+
+    var recuperation_value = this.getRecuperationValue(this.endWorkDate);//value of each recuperation day
+    var recuperation_total = 0;//running total
+    var recuperation_total_without_oldness = 0;
+
+    //calculate and ignore oldness and calculate what will be shown
+    for(i=1;i<=this.dateDiff[0];i++)
+    {
+      var days = this.getRecuperationDays(i);
+      var irecuperation_value = days * recuperation_value;
+      recuperation_total_without_oldness += irecuperation_value;
+      rows[i-1]=[i, this.getRecuperationDays(i, true), days, irecuperation_value];
+      if(dateDiff[0] - i < 2)//oldness calc: include last two years
+      {
+        recuperation_total += rows[i-1][3];
+      }
+    }
+    //if worked part of a year this is the remainder
+    var remainder = this.getRecuperationDays(i) * dateDiff[1]/12;
+    
+    if(dateDiff[0]>0 && remainder>0){
+      recuperation_total_without_oldness += remainder * recuperation_value;
+      rows[i-1] = [i, this.getRecuperationDays(i, true), remainder, remainder * recuperation_value];
+      recuperation_total += rows[i-1][3];
+    }
+    return [recuperation_value, recuperation_total, recuperation_total_without_oldness, rows];
+  },
+
 	getMonthWage: function (minMonthValue, yearNum) {
 		return minMonthValue;
 	},
@@ -43,11 +174,6 @@ Worker.prototype = {
     minMonthValue = pension_data[getPensionDataIndex(this.endWorkDate)][1];
     month_value = this.getMonthWage(minMonthValue, yearNum);
     return month_value / this.getNumWorkDaysInMonth();
-  },
-
-  isSeparationEligible: function() {
-    //simple enough
-    return this.isEligibleToSeperation;
   },
 
   getPartTimeFraction: function() {
@@ -116,9 +242,9 @@ Worker.prototype = {
   },
 
   getDayWage: function (minMonthValue, yearNum) {
-    var month_value = getMonthWage (minMonthValue, yearNum);
+    var month_value = this.getMonthWage (minMonthValue, yearNum);
 
-    if(daysPerWeek == 6)
+    if(this.daysPerWeek == 6)
       return month_value / SIX_WORK_DAYS_IN_MONTH;
     else
       return month_value / FIVE_WORK_DAYS_IN_MONTH;
@@ -142,8 +268,8 @@ Worker.prototype = {
   },
 }
 
-function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, dailyWage, daysPerWeek, hoursPerWeek) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation);
+function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, dailyWage, daysPerWeek, hoursPerWeek) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
 	this.daysPerWeek = daysPerWeek ? daysPerWeek : 0;
 	this.hoursPerWeek = hoursPerWeek ? hoursPerWeek : 0;
 	this.dailyWage = dailyWage ? dailyWage : 0;
@@ -215,8 +341,8 @@ HourlyWorker.prototype = {
 
 extend(Worker, HourlyWorker);
 
-function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, workPercentage, daysPerWeek) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation);
+function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, workPercentage, daysPerWeek) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
 	this.monthlyWage = isUndefined(monthlyWage) ? 0 : monthlyWage;
   this.workPercentage = isUndefined(workPercentage) ? 100 : workPercentage;
   this.daysPerWeek = daysPerWeek ? daysPerWeek : DEFAULT_WORK_WEEK;
@@ -240,8 +366,8 @@ MonthlyWorker.prototype = {
 
 extend(Worker, MonthlyWorker);
 
-function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, allowance) {
-	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
+function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, allowance) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage);
   this.daysPerWeek = 6;
   this.allowance = allowance;
 }
@@ -278,8 +404,8 @@ AgriculturalWorker.prototype = {
 extend(MonthlyWorker, AgriculturalWorker);
 
 //סיעוד
-function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, allowance) {
-	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
+function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, allowance) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage);
   this.allowance = allowance;
   this.daysPerWeek = 6;
 }
@@ -297,8 +423,8 @@ Caretaker.prototype = {
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, daysPerWeek, hoursPerWeek, dailyWage) {
-	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, daysPerWeek, hoursPerWeek, dailyWage);
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage) {
+	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage);
 }
 
 extend(MonthlyWorker, CleaningWorker);

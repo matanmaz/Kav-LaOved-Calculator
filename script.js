@@ -184,16 +184,16 @@ function main(funcs) {
 	var work_percentage = $('#formElement20-4').val();
 	switch(selectedForm){
 		case CARETAKER_FORM:
-			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, allowance);
+			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
 			break;
 		case DAILY_WORKER_FORM:
-			worker = new HourlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), day_value, num_days_in_week, num_hours_in_week);
+			worker = new HourlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week);
 			break;
 		case AGRICULTURAL_WORKER_FORM:
-			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, allowance);
+			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
 			break;
 		case MONTHLHY_WORKER_FORM:
-			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), month_value, work_percentage);
+			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, work_percentage);
 			break;
 	}
 	for (var i = 0; i < funcs.length; i++) {
@@ -210,6 +210,11 @@ function checkedEligCompen(){
 		$('#formElementRow24-'+selectedForm).show();
 	else
 		$('#formElementRow24-'+selectedForm).hide();
+}
+
+function isSeparationEligible() {
+	//simple
+	return $('#formElement13-'+selectedForm).is(':checked');
 }
 
 function showForm(formId){
@@ -234,11 +239,6 @@ function getItem(array, index) {
 function isUndefined(variable) {
 	//utility
 	return variable == undefined || variable == "";
-}
-
-function isSeparationEligible() {
-	//simple
-	return $('#formElement13-'+selectedForm).is(':checked');
 }
 
 function isInputValid(startDate, endDate){
@@ -333,35 +333,11 @@ function calcRecuper(isFirst){
 	//define output table headers
 	headers = [STR.years[LANG], STR.days_potential[LANG], STR.days_net[LANG], STR.amount_per_year[LANG]];
 
-	partial = getPartTimeFraction();//part time consideration
-
-	recuperation_value = worker.getRecuperationValue(end_date);//value of each recuperation day
-	recuperation_total = 0;//running total
-	recuperation_total_without_oldness = 0;
-
-	//start filling the table
-	rows = [];
-
-	//calculate and ignore oldness and calculate what will be shown
-	for(i=1;i<=dateDiff[0];i++)
-	{
-		days = worker.getRecuperationDays(i);
-		irecuperation_value = days * recuperation_value;
-		recuperation_total_without_oldness += irecuperation_value;
-		rows[i-1]=[i, worker.getRecuperationDays(i, true), days, irecuperation_value];
-		if(dateDiff[0] - i < 2)//oldness calc: include last two years
-		{
-			recuperation_total += rows[i-1][3];
-		}
-	}
-	//if worked part of a year this is the remainder
-	remainder = worker.getRecuperationDays(i) * dateDiff[1]/12;
-	
-	if(dateDiff[0]>0 && remainder>0){
-		recuperation_total_without_oldness += remainder * recuperation_value;
-		rows[i-1] = [i, worker.getRecuperationDays(i, true), remainder, remainder * recuperation_value];
-		recuperation_total += rows[i-1][3];
-	}
+	var result = worker.getRecuperationTable();
+	var recuperation_value = result[0];
+	var recuperation_total = result[1];
+	var recuperation_total_without_oldness = result[2];
+	var rows = result[3];
 
 	//get visual
 	createOutputTable(isFirst, 
@@ -450,10 +426,8 @@ function calcPension(isFirst){
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
-	//convert dates to months and years of work
-	dateDiff = getDateDiff(start_date, end_date);
-	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
-	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
+	var sep_elig = worker.isSeparationEligible;
+	var sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	//define output table headers
 	
 	//different columns depending on separation stuff:
@@ -465,98 +439,10 @@ function calcPension(isFirst){
 		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
 		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
 	}
-	total_value = 0;//running total
 
-	//start filling the table
-	rows = [];
-
-	//init pension calculation variables
-	total_months = 0;
-	months_waited = 0;
-	doneWaiting = false;
-	periodStart = new Date(start_date);
-	running_index = 0;
-
-	//handle case that work started before pension_data:
-	if(start_date < pension_data[running_index][0]){
-		months_waited += getMonthsDiff(start_date, pension_data[running_index][0]);
-		periodStart = new Date(pension_data[running_index][0]);
-	}
-	else{
-		//find the first pension_data by running on running index
-		getPensionDataIndex(start_date);
-	}
-
-	while(running_index<pension_data.length && pension_data[running_index][0]<end_date){
-		num_months = 0;
-		startIndex = running_index;
-		periodMinWage = pension_data[running_index][1];
-		
-		periodPercentage = pension_data[running_index][2];
-
-		periodTotal = 0;
-		while(pension_data.length > running_index 
-			&& pension_data[running_index][0] < end_date 
-			&& worker.isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
-			running_index++;
-		}
-		if(pension_data.length == running_index){
-			periodEnd = new Date(end_date);
-			period = getMonthsDiff(periodStart, periodEnd);
-			periodEnd.setDate(periodEnd.getDate()-1);
-		}
-		else if(pension_data[running_index][0] >= end_date){
-			periodEnd = new Date(end_date);
-			period = getMonthsDiff(periodStart, periodEnd);
-		}
-		else
-		{
-			periodEnd = new Date(pension_data[running_index][0]);
-			period = getMonthsDiff(periodStart, periodEnd);
-			periodEnd.setDate(periodEnd.getDate()-1);
-		}
-		
-		i = 0;
-		while(period>0){
-			partial = 1;
-			if(period<1){
-				partial = period;
-			}
-			months_waited += partial;
-			//has the worker waited enough time to get pension?
-			pastWaiting = months_waited - getPensionWaiting(addMonth(periodStart,i));
-			if(!doneWaiting && pastWaiting>0) {
-				doneWaiting = true;
-				if(pastWaiting < 1)
-					partial = pastWaiting;
-			}
-			
-			if(doneWaiting){
-				num_months += partial; total_months+= partial;
-				periodTotal += partial * worker.getMonthWage(periodMinWage, Math.floor(total_months/12)) * periodPercentage;
-			}
-
-			period--;
-		}
-		(sep_elig && (!sep_elig_show_details))? total_value += periodTotal : total_value += periodTotal * 2;
-		
-		period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
-		
-		//whether we show X% or X%+X%:
-		periodPercentageString = sprintf("%.2f%%", periodPercentage*100)
-		periodPercentageString = (sep_elig && (!sep_elig_show_details))? periodPercentageString : periodPercentageString + "+" + periodPercentageString
-		
-		//different columns depending on sep:
-		if(sep_elig && (!sep_elig_show_details) ){
-			rows.push([period, num_months, worker.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal]);
-		}
-		else {
-			rows.push([period, num_months, worker.getMonthWage(periodMinWage, Math.floor(total_months/12)), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
-		}
-
-		periodStart = new Date(periodEnd);
-		periodStart.setDate(periodEnd.getDate()+1);
-	}
+	var result = worker.getPensionTable(sep_elig_show_details);
+	total_value = result[0];
+	rows = result[1];
 
 	//get visual	
 	createOutputTable(isFirst, 
@@ -743,7 +629,7 @@ function getMonthsDiff (startDate, endDate) {
 function getPensionWaiting (date) {
 	//utility
 	i=0;
-	pension_waiting = pension_waiting_data[0][1];
+	var pension_waiting = pension_waiting_data[0][1];
 	while(i < pension_waiting_data.length && date >= pension_waiting_data[i][0]){
 		pension_waiting = pension_waiting_data[i][1];
 		i++;
@@ -879,7 +765,7 @@ function getDateDiff(startDate, endDate) {
 	months = monthB-monthA;	
 	if(dayB<dayA){
 		months-=1;
-		dayB += TOTAL_DAYS_IN_MONTH;
+		dayB += getNumDaysInMonth(dateB.getFullYear(), monthB+1);//TOTAL_DAYS_IN_MONTH;
 	}
 	months += (dayB-dayA)/getNumDaysInMonth(dateB.getFullYear(), monthB+1);
 
