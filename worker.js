@@ -405,4 +405,4 @@ function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEl
 	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage);
 }
 
-extend(MonthlyWorker, CleaningWorker);
+extend(HourlyWorker, CleaningWorker);

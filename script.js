@@ -93,19 +93,19 @@ function initPage() {
 
 	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
 
-	addInputToForms([0,1,3,4], STR.month_wage[LANG], "number", 4, "");
+	addInputToForms([1,3,4], STR.month_wage[LANG], "number", 4, "");
 
 	addInputToForms([4], STR.work_percentage[LANG], "number", 20, "100");
 
-	addInputToForms([2], STR.daily_wage[LANG], "number", 5, "");
+	addInputToForms([0,2], STR.daily_wage[LANG], "number", 5, "");
 
 	addInputToForms([1,3], STR.week_allowance[LANG], "number", 6, "");
 
-	addInputToForms([0,1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
+	addInputToForms([1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
 
-	addInputToForms([2], STR.num_days_in_week[LANG], "number", 8, "0");
+	addInputToForms([0,2], STR.num_days_in_week[LANG], "number", 8, "0");
 
-	addInputToForms([2], STR.num_hours_in_week[LANG], "number", 9, "0");
+	addInputToForms([0,2], STR.num_hours_in_week[LANG], "number", 9, "0");
 
 	addInputToForms([4], STR.five_day_week[LANG], "checkbox", 19, "");
 
@@ -141,6 +141,9 @@ function main(funcs) {
 	var work_percentage = $('#formElement20-4').val();
 	var five_day_week = $('#formElement19-'+selectedForm).is(':checked');
 	switch(selectedForm){
+		case CLEANING_WORKER_FORM:
+			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week)
+			break;
 		case CARETAKER_FORM:
 			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
 			break;
@@ -200,7 +203,7 @@ function isUndefined(variable) {
 
 function isInputValid(startDate, endDate){
 	//validate input
-	if(selectedForm==0) {
+	if(selectedForm<0 || selectedForm >= NUM_WORKER_TYPES) {
 		alert('Type of worker hasn\'t been selected');
 		return false;
 	}
@@ -242,24 +245,6 @@ function getStartDate() {
 	var start_date = new Date($("#formElement2-"+selectedForm).val());
 	return start_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
-}
-
-function getPartTimeFraction(){
-	//returns achuz misra
-	partial = 1;
-	if(selectedForm==DAILY_WORKER_FORM)
-	{
-		hours = $('#formElement9-2').val();
-		hours = hours > 43 ? 43 : hours;
-		if(!hours)
-			alert(STR.alert_no_hours_in_week[LANG]);
-		partial = hours / 43;
-	}
-	if(selectedForm==MONTHLHY_WORKER_FORM)
-	{
-		partial = $('#formElement20-4').val()/100;
-	}
-	return partial;
 }
 
 function getOldness(period, yearsBack){
@@ -646,7 +631,7 @@ function createOutputTable(isFirst, title, startDate, endDate, headers, rows, fo
 		output_header.append(sprintf("%s: (%s) - (%s)<br/>",
 			STR.work_period[LANG], dateToString(startDate,1), dateToString(endDate,1)));
 		output_header.append(sprintf("%s: %.1f%%<br/>", STR.work_percentage[LANG], 
-			getPartTimeFraction()*100))
+			worker.getPartTimeFraction()*100))
 		output_header.append(sprintf("%s: %s<br/><br/>",STR.comments[LANG], comments));
 		
 		//show contact details
