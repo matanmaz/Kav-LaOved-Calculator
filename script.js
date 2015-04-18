@@ -11,6 +11,7 @@ DAILY_WORKER_FORM = 2;
 AGRICULTURAL_WORKER_FORM = 3;
 MONTHLHY_WORKER_FORM = 4;
 
+var forms = [];
 
 function getQueryParams(qs) {
 	//utility
@@ -48,6 +49,14 @@ $(function() {
 	initPage();
  });
 
+function addInputToAllForms(label, type, id, defaultValue, onClickAction, other) {
+	forms.map(function(form) { form.addInput(label, type, id, defaultValue, onClickAction, other);});
+}
+
+function addInputToForms(affected, label, type, id, defaultValue, onClickAction, other) {
+	forms.map(function(form) { if(affected.indexOf(form.id)!=-1) form.addInput(label, type, id, defaultValue, onClickAction, other);});
+}
+
 function initPage() {
 
 	//initialization
@@ -66,114 +75,59 @@ function initPage() {
 
 	for(var i = 0; i < NUM_WORKER_TYPES; i++){
 		$("#div_main").append('<input id="option'+i+'" type="button" value="'+ STR.type_buttons[i][LANG] +'" onClick="showForm('+i+');"/> ');
-		$("#div_form").append('<table id="form'+i+'"></table>')
+		$("#div_form").append('<table id="form'+i+'"></table>');
+		forms[i] = new Form(i);
 	}
 
-	formElement1 = "<tr><td>"+STR.employee_name[LANG] + ":</td><td><input type='text' id='formElement1-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement1,1));
-	$("#form2").append(sprintf(formElement1,2));
-	$("#form3").append(sprintf(formElement1,3));
-	$("#form4").append(sprintf(formElement1,4));
+	addInputToAllForms(STR.employee_name[LANG], "text", 1, "");
 
-	formElement22 = "<tr><td>"+STR.employer_name[LANG] + ":</td><td><input type='text' id='formElement22-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement22,1));
-	$("#form2").append(sprintf(formElement22,2));
-	$("#form3").append(sprintf(formElement22,3));
-	$("#form4").append(sprintf(formElement22,4));
+	addInputToAllForms(STR.employer_name[LANG], "text", 22, "");
 
-	formElement21 = "<tr><td>"+STR.editor_name[LANG] + ":</td><td><input type='text' id='formElement21-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement21,1));
-	$("#form2").append(sprintf(formElement21,2));
-	$("#form3").append(sprintf(formElement21,3));
-	$("#form4").append(sprintf(formElement21,4));
+	addInputToAllForms(STR.editor_name[LANG], "text", 21, "");
 
-	formElement23 = "<tr><td>"+STR.comments[LANG] + ":</td><td><textarea rows='2' cols='30' id='formElement23-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement23,1));
-	$("#form2").append(sprintf(formElement23,2));
-	$("#form3").append(sprintf(formElement23,3));
-	$("#form4").append(sprintf(formElement23,4));
-	
-	formElement2 = "<tr><td>"+STR.start_date[LANG] + ":</td><td><input type='date' id='formElement2-%d' value='2010-01-01'/></td></tr>";
-	$("#form1").append(sprintf(formElement2,1));
-	$("#form2").append(sprintf(formElement2,2));
-	$("#form3").append(sprintf(formElement2,3));
-	$("#form4").append(sprintf(formElement2,4));
+	addInputToAllForms(STR.comments[LANG], "textarea", 23, "", "", "rows='2' cols='30'");
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
-	for(i=1;i<NUM_WORKER_TYPES+1;i++){
-		$("#formElement2-"+i).val(dateToString(lastYear,2));
-	}
+	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,2));
 
-	formElement3 = "<tr><td>"+STR.end_date[LANG] + ":</td><td><input type='date' id='formElement3-%d' value='2013-04-01'/></td></tr>";
-    $("#form1").append(sprintf(formElement3,1));
-	$("#form2").append(sprintf(formElement3,2));
-	$("#form3").append(sprintf(formElement3,3));
-	$("#form4").append(sprintf(formElement3,4));
-	for(i=1;i<NUM_WORKER_TYPES+1;i++){
-		$("#formElement3-"+i).val(dateToString(new Date(),2));
-	}
+	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
 
-	formElement4 = "<tr><td>"+STR.month_wage[LANG] + ":</td><td><input type='number' id='formElement4-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement4,1));
-	$("#form3").append(sprintf(formElement4,3));
-	$("#form4").append(sprintf(formElement4,4));
+	addInputToForms([0,1,3,4], STR.month_wage[LANG], "number", 4, "");
 
-	formElement20 = "<tr><td>"+STR.work_percentage[LANG] + ":</td><td><input type='number' value='100' id='formElement20-%d'/></td></tr>";
-	$("#form4").append(sprintf(formElement20,4));
+	addInputToForms([4], STR.work_percentage[LANG], "number", 20, "100");
 
-	formElement5 = "<tr><td>"+STR.daily_wage[LANG] + ":</td><td><input type='number' id='formElement5-%d'/></td></tr>";
-	$("#form2").append(sprintf(formElement5,2));
-	
-	formElement6 = "<tr><td>"+STR.week_allowance[LANG] + ":</td><td><input type='number' id='formElement6-%d'/></td></tr>";
-	$("#form1").append(sprintf(formElement6,1));
-	$("#form3").append(sprintf(formElement6,3));
+	addInputToForms([2], STR.daily_wage[LANG], "number", 5, "");
 
-	formElement7 = "<tr><td>"+STR.holidays_for_calc[LANG] + ":</td><td><input type='number' id='formElement7-%d' value='0'/></td></tr>";
-	$("#form1").append(sprintf(formElement7,1));
-	$("#form3").append(sprintf(formElement7,3));
-	$("#form4").append(sprintf(formElement7,4));
+	addInputToForms([1,3], STR.week_allowance[LANG], "number", 6, "");
 
-	formElement8 = "<tr><td>"+STR.num_days_in_week[LANG] + ":</td><td><input type='number' id='formElement8-%d' value='0'/></td></tr>";
-	$("#form2").append(sprintf(formElement8,2));
+	addInputToForms([0,1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
 
-	formElement9 = "<tr><td>"+STR.num_hours_in_week[LANG] + ":</td><td><input type='number' id='formElement9-%d' value='0'/></td></tr>";
-	$("#form2").append(sprintf(formElement9,2));
+	addInputToForms([2], STR.num_days_in_week[LANG], "number", 8, "0");
 
-	formElement19 = "<tr><td>"+STR.five_day_week[LANG] + ":</td><td><input type='checkbox' id='formElement19-%d'/></td></tr>";
-	$("#form4").append(sprintf(formElement19,4));	
+	addInputToForms([2], STR.num_hours_in_week[LANG], "number", 9, "0");
 
-	formElement13 = "<tr><td>"+STR.elig_compen[LANG] + ":</td><td><input type='checkbox' id='formElement13-%d' onClick='checkedEligCompen()'/></td></tr>";
-    $("#form1").append(sprintf(formElement13,1));
-	$("#form2").append(sprintf(formElement13,2));
-	$("#form3").append(sprintf(formElement13,3));
-	$("#form4").append(sprintf(formElement13,4));
-	
+	addInputToForms([4], STR.five_day_week[LANG], "checkbox", 19, "");
+
+	addInputToAllForms(STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
+
 	formElement24 = "<tr id='formElementRow24-%d'><td>"+STR.show_elig_details[LANG] + ":</td><td><input type='checkbox' id='formElement24-%d'/></td></tr>";
     $("#form1").append(sprintf(formElement24,1,1));
 	$("#form2").append(sprintf(formElement24,2,2));
 	$("#form3").append(sprintf(formElement24,3,3));
 	$("#form4").append(sprintf(formElement24,4,4));
-	
-	formElement14 = "<tr><td>"+STR.calc_total_w_oldness[LANG] + ":</td><td><input type='checkbox' id='formElement14-%d'/></td></tr>";
-    $("#form1").append(sprintf(formElement14,1));
-	$("#form2").append(sprintf(formElement14,2));
-	$("#form3").append(sprintf(formElement14,3));
-	$("#form4").append(sprintf(formElement14,4));
 
-	formElement15 = "<tr><td><input type='button' value='"+STR.calc_recuper_vacation_and_holidays[LANG] + "' id='formElement15-%d' onClick='resetOutput();main([calcRecuper,calcVacation,calcHolidays]);'/></td><td></td></tr>";
-    $("#form1").append(sprintf(formElement15,1));
-	$("#form2").append(sprintf(formElement15,2));
-	$("#form3").append(sprintf(formElement15,3));
-	$("#form4").append(sprintf(formElement15,4));
+	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
 
-	formElement17 = "<tr><td><input type='button' value='"+STR.calc_compen[LANG] + "' id='formElement17-%d' onClick='resetOutput();main([calcPension,calcCompen,calcEarly]);'/></td><td></td></tr>";
-    $("#form1").append(sprintf(formElement17,1));
-	$("#form2").append(sprintf(formElement17,2));
-	$("#form3").append(sprintf(formElement17,3));
-	$("#form4").append(sprintf(formElement17,4));
+	forms.map(function(form){
+		form.addButton(STR.calc_recuper_vacation_and_holidays[LANG], 15, "resetOutput();main([calcRecuper,calcVacation,calcHolidays]);");
+	});
 
-    showForm();
+	forms.map(function(form){
+		form.addButton(STR.calc_compen[LANG], 17, "resetOutput();main([calcPension,calcCompen,calcEarly]);");
+	});
+
+    showForm(-1);
 }
 
 var worker;
@@ -185,6 +139,7 @@ function main(funcs) {
 	var num_days_in_week = $('#formElement8-2').val();
 	var num_hours_in_week = $('#formElement9-2').val();
 	var work_percentage = $('#formElement20-4').val();
+	var five_day_week = $('#formElement19-'+selectedForm).is(':checked');
 	switch(selectedForm){
 		case CARETAKER_FORM:
 			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
@@ -196,7 +151,7 @@ function main(funcs) {
 			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
 			break;
 		case MONTHLHY_WORKER_FORM:
-			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, work_percentage);
+			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, work_percentage, five_day_week);
 			break;
 	}
 	for (var i = 0; i < funcs.length; i++) {
@@ -221,7 +176,6 @@ function isSeparationEligible() {
 }
 
 function showForm(formId){
-	formId = formId || 0;
 	for(i=0;i<NUM_WORKER_TYPES;i++)
 	{
 		if(i==formId)
@@ -777,7 +731,7 @@ function getDateDiff(startDate, endDate) {
 
 function resetPage(){
 	$('#div_main').empty();
-	for(i=1;i<=NUM_WORKER_TYPES;i++)
+	for(i=0;i<NUM_WORKER_TYPES;i++)
 		$('#form'+i).empty();
 	resetOutput();
 	initPage();
