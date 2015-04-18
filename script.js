@@ -1,14 +1,16 @@
-﻿last_update = "11.4.2015"
+﻿last_update = "18.4.2015"
 
-NUMBER_OF_FORMS = 4;
+NUM_WORKER_TYPES = 5;
 LANG = 1;
 selectedForm = 0;
 showImage = true;
 
+CLEANING_WORKER_FORM = 0;
 CARETAKER_FORM = 1;
 DAILY_WORKER_FORM = 2;
 AGRICULTURAL_WORKER_FORM = 3;
 MONTHLHY_WORKER_FORM = 4;
+
 
 function getQueryParams(qs) {
 	//utility
@@ -61,10 +63,11 @@ function initPage() {
 
 	$("#div_main").append('<input type="button" value="'+STR.print[LANG]+'" onClick="printOutput();"/> ');
 	$("#div_main").append('<input type="button" value="'+STR.reset[LANG]+'" onClick="resetOutput();"/><br/>');
-	$("#div_main").append('<input id="option1" type="button" value="'+ STR.caretaker_menu[LANG] +'" onClick="showForm(1);"/> ');
-	$("#div_main").append('<input id="option2" type="button" value="'+ STR.daily_worker_menu[LANG] +'" onClick="showForm(2);"/> ');
-	$("#div_main").append('<input id="option3" type="button" value="'+ STR.agricultural_worker_menu[LANG] +'" onClick="showForm(3);"/> ');
-	$("#div_main").append('<input id="option4" type="button" value="'+ STR.monthly_worker_menu[LANG] +'" onClick="showForm(4);"/> ');
+
+	for(var i = 0; i < NUM_WORKER_TYPES; i++){
+		$("#div_main").append('<input id="option'+i+'" type="button" value="'+ STR.type_buttons[i][LANG] +'" onClick="showForm('+i+');"/> ');
+		$("#div_form").append('<table id="form'+i+'"></table>')
+	}
 
 	formElement1 = "<tr><td>"+STR.employee_name[LANG] + ":</td><td><input type='text' id='formElement1-%d'/></td></tr>";
 	$("#form1").append(sprintf(formElement1,1));
@@ -98,7 +101,7 @@ function initPage() {
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
-	for(i=1;i<NUMBER_OF_FORMS+1;i++){
+	for(i=1;i<NUM_WORKER_TYPES+1;i++){
 		$("#formElement2-"+i).val(dateToString(lastYear,2));
 	}
 
@@ -107,7 +110,7 @@ function initPage() {
 	$("#form2").append(sprintf(formElement3,2));
 	$("#form3").append(sprintf(formElement3,3));
 	$("#form4").append(sprintf(formElement3,4));
-	for(i=1;i<NUMBER_OF_FORMS+1;i++){
+	for(i=1;i<NUM_WORKER_TYPES+1;i++){
 		$("#formElement3-"+i).val(dateToString(new Date(),2));
 	}
 
@@ -219,7 +222,7 @@ function isSeparationEligible() {
 
 function showForm(formId){
 	formId = formId || 0;
-	for(i=1;i<=NUMBER_OF_FORMS;i++)
+	for(i=0;i<NUM_WORKER_TYPES;i++)
 	{
 		if(i==formId)
 			$("#form"+i).show();
@@ -227,7 +230,7 @@ function showForm(formId){
 			$("#form"+i).hide();
 	}
 	selectedForm = formId;
-	checkedEligCompen()
+	checkedEligCompen();
 }
 
 function getItem(array, index) {
@@ -774,7 +777,7 @@ function getDateDiff(startDate, endDate) {
 
 function resetPage(){
 	$('#div_main').empty();
-	for(i=1;i<=NUMBER_OF_FORMS;i++)
+	for(i=1;i<=NUM_WORKER_TYPES;i++)
 		$('#form'+i).empty();
 	resetOutput();
 	initPage();
