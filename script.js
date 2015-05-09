@@ -80,11 +80,11 @@ function initPage() {
 	}
 	//Cleaning Employee Type
 	formElement25 = "<tr id='formElementRow25-%d'><td>"+STR.cleaning_type[LANG] + ":</td><td>" 
-		+ STR.cleaning_private[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1'/>"
-		+ STR.cleaning_public[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='2'/>"
-		+ STR.cleaning_hotel[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='3'/>"
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1'/>" + STR.cleaning_private[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='2'/>" + STR.cleaning_public[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='3'/>" + STR.cleaning_hotel[LANG] 
 		+ "</td></tr>";
-    $("#form0").append(sprintf(formElement25,0,0,0,0));
+    $("#form"+CLEANING_WORKER_FORM).append(sprintf(formElement25,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM));
 	//Employee Name
 	addInputToAllForms(STR.employee_name[LANG], "text", 1, "");
 	//Employer Name
@@ -105,15 +105,15 @@ function initPage() {
 	//Work Percentage
 	addInputToForms([4], STR.work_percentage[LANG], "number", 20, "100");
 	//Daily Wage
-	addInputToForms([0,2], STR.daily_wage[LANG], "number", 5, "");
+	addInputToForms([CLEANING_WORKER_FORM,2], STR.daily_wage[LANG], "number", 5, "");
 	//Week's Allowance
 	addInputToForms([1,3], STR.week_allowance[LANG], "number", 6, "");
 	//Num Holidays
 	addInputToForms([1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
 	//Words Days in a Week
-	addInputToForms([0,2], STR.num_days_in_week[LANG], "number", 8, "0");
+	addInputToForms([CLEANING_WORKER_FORM,2], STR.num_days_in_week[LANG], "number", 8, "0");
 	//Hours in a Week
-	addInputToForms([0,2], STR.num_hours_in_week[LANG], "number", 9, "0");
+	addInputToForms([CLEANING_WORKER_FORM,2], STR.num_hours_in_week[LANG], "number", 9, "0");
 	//Five Day Week?
 	addInputToForms([4], STR.five_day_week[LANG], "checkbox", 19, "");
 	//Eligible for Compensation?
@@ -126,6 +126,10 @@ function initPage() {
 	$("#form4").append(sprintf(formElement24,4,4));
 	//Calculate with　Ｏｌｄｎｅｓｓ?
 	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
+	//Overtime
+	addInputToForms([CLEANING_WORKER_FORM], STR.overtime[LANG] + " 125%", "number", 26, "0");
+
+	addInputToForms([CLEANING_WORKER_FORM], STR.overtime[LANG] + " 150%", "number", 27, "0");
 
 	forms.map(function(form){
 		form.addButton(STR.calc_recuper_vacation_and_holidays[LANG], 15, "resetOutput();main([calcRecuper,calcVacation,calcHolidays]);");
@@ -148,9 +152,13 @@ function main(funcs) {
 	var num_hours_in_week = $('#formElement9-2').val();
 	var work_percentage = $('#formElement20-4').val();
 	var five_day_week = $('#formElement19-'+selectedForm).is(':checked');
+	var cleaning_type = $("input[name=cleaning_type]:radio:checked").val();
+	var overtime125 = $('#formElement26-'+selectedForm).val();
+	var overtime150 = $('#formElement27-'+selectedForm).val();
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
-			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week)
+			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week, cleaning_type, 
+				overtime125, overtime150);
 			break;
 		case CARETAKER_FORM:
 			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);

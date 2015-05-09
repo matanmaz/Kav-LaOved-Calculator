@@ -80,5 +80,7 @@
 	cleaning_private : ['Private','פרטי'],
 	cleaning_public : ['Public','ציבורי'],
 	cleaning_hotel : ['Hotel','מלון'],
+	overtime : ['Overtime Hours Post Reform','שעות נוספות מאז צו ההרחבה'],
+	
 }
 //	 : ['',''],

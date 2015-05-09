@@ -401,8 +401,11 @@ Caretaker.prototype = {
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage) {
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage, cleaningType, overtime125, overtime150) {
 	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage);
+  this.cleaningType = cleaningType;
+  this.overtime125 = overtime125;
+  this.overtime150 = overtime150;
 }
 
 extend(HourlyWorker, CleaningWorker);
