@@ -75,6 +75,10 @@
 	output_pension_expl : ['(employer allowance only, starting from 7th month at work)','(הפרשות המעסיק בלבד, החל מהחודש השביעי לעבודה)'],
 	shekels : ['NIS','ש"ח'],
 	employer_name : ['Employer Name','שם המעסיק'],
-	comments : ['Comments','הערות']
+	comments : ['Comments','הערות'],
+	cleaning_type : ['Type','סוג'],
+	cleaning_private : ['Private','פרטי'],
+	cleaning_public : ['Public','ציבורי'],
+	cleaning_hotel : ['Hotel','מלון'],
 }
 //	 : ['',''],

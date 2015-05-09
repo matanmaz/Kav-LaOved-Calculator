@@ -1,4 +1,4 @@
-﻿last_update = "18.4.2015"
+﻿last_update = "9.5.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -78,45 +78,53 @@ function initPage() {
 		$("#div_form").append('<table id="form'+i+'"></table>');
 		forms[i] = new Form(i);
 	}
-
+	//Cleaning Employee Type
+	formElement25 = "<tr id='formElementRow25-%d'><td>"+STR.cleaning_type[LANG] + ":</td><td>" 
+		+ STR.cleaning_private[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1'/>"
+		+ STR.cleaning_public[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='2'/>"
+		+ STR.cleaning_hotel[LANG] + "<input type='radio' id='formElement25-%d' name='cleaning_type' value='3'/>"
+		+ "</td></tr>";
+    $("#form0").append(sprintf(formElement25,0,0,0,0));
+	//Employee Name
 	addInputToAllForms(STR.employee_name[LANG], "text", 1, "");
-
+	//Employer Name
 	addInputToAllForms(STR.employer_name[LANG], "text", 22, "");
-
+	//Editor Name
 	addInputToAllForms(STR.editor_name[LANG], "text", 21, "");
-
+	//Comments
 	addInputToAllForms(STR.comments[LANG], "textarea", 23, "", "", "rows='2' cols='30'");
+	//Start Date
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
 	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,2));
-
+	//End Date
 	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
-
+	//Month Wage
 	addInputToForms([1,3,4], STR.month_wage[LANG], "number", 4, "");
-
+	//Work Percentage
 	addInputToForms([4], STR.work_percentage[LANG], "number", 20, "100");
-
+	//Daily Wage
 	addInputToForms([0,2], STR.daily_wage[LANG], "number", 5, "");
-
+	//Week's Allowance
 	addInputToForms([1,3], STR.week_allowance[LANG], "number", 6, "");
-
+	//Num Holidays
 	addInputToForms([1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
-
+	//Words Days in a Week
 	addInputToForms([0,2], STR.num_days_in_week[LANG], "number", 8, "0");
-
+	//Hours in a Week
 	addInputToForms([0,2], STR.num_hours_in_week[LANG], "number", 9, "0");
-
+	//Five Day Week?
 	addInputToForms([4], STR.five_day_week[LANG], "checkbox", 19, "");
-
+	//Eligible for Compensation?
 	addInputToAllForms(STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
-
+	//Show Eligibility Details?
 	formElement24 = "<tr id='formElementRow24-%d'><td>"+STR.show_elig_details[LANG] + ":</td><td><input type='checkbox' id='formElement24-%d'/></td></tr>";
     $("#form1").append(sprintf(formElement24,1,1));
 	$("#form2").append(sprintf(formElement24,2,2));
 	$("#form3").append(sprintf(formElement24,3,3));
 	$("#form4").append(sprintf(formElement24,4,4));
-
+	//Calculate with　Ｏｌｄｎｅｓｓ?
 	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
 
 	forms.map(function(form){
