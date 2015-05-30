@@ -119,7 +119,7 @@ function initPage() {
 	//Five Day Week?
 	addInputToForms([MONTHLHY_WORKER_FORM], STR.five_day_week[LANG], "checkbox", 19, "");
 	//Eligible for Compensation?
-	addInputToAllForms(STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
+	addInputToForms([DAILY_WORKER_FORM, CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM],STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
 	//Show Eligibility Details?
 	formElement24 = "<tr id='formElementRow24-%d'><td>"+STR.show_elig_details[LANG] + ":</td><td><input type='checkbox' id='formElement24-%d'/></td></tr>";
     $("#form1").append(sprintf(formElement24,1,1));
@@ -161,7 +161,7 @@ function main(funcs) {
 	var overtime150 = $('#formElement27-'+selectedForm).val();
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
-			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), work_percentage, hour_value, cleaning_type, 
+			worker = new CleaningWorker(getStartDate(), getEndDate(), work_percentage, hour_value, cleaning_type, 
 				overtime125, overtime150);
 			break;
 		case CARETAKER_FORM:
@@ -277,13 +277,12 @@ function getOldness(period, yearsBack){
 function getPensionData(date) {
 	var index = getPensionDataIndex(date);
 	var data = pension_data[index];
-	data[0] = date;
 	return data;
 }
 
 function getPensionDataIndex(date) {
 	//util function
-	running_index = 0;
+	var running_index = 0;
 	while(running_index < pension_data.length && date >= pension_data[running_index][0]){
 		running_index++;
 	}
@@ -347,7 +346,7 @@ function calcVacation(isFirst){
 	//start filling the table
 	rows = [];
 
-	vacationDayValue = worker.getVacationDayValue(dateDiff[0]);
+	vacationDayValue = worker.getVacationDayValue(end_date);
 
 	//this 'for loop' handles whole years
 	//remainder is taken care of later
@@ -470,7 +469,7 @@ function calcCompen (isFirst) {
 	if(!$('#formElement13-'+selectedForm).is(':checked'))
 		return;
 
-	month_value = worker.getMonthWage(min_month_value, dateDiff[0]);
+	month_value = worker.getMonthWage(end_date);
 	
 	createOutputTable(isFirst, 
 		STR.output_compen[LANG], 
@@ -538,10 +537,10 @@ function calcEarly (isFirst) {
 			numDays--;
 		}
 
-		earlyPay = worker.getDayWage(min_month_value, dateDiff[0]) * workDays;
+		earlyPay = worker.getDayWage(end_date) * workDays;
 	}
 	else{
-		earlyPay = worker.getMonthWage(min_month_value, dateDiff[0]);
+		earlyPay = worker.getMonthWage(end_date);
 	}
 	output_table_id = createOutputTable(isFirst, 
 		STR.output_early[LANG], 

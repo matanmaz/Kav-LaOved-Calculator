@@ -35,6 +35,8 @@ agr_min_wage_bonus = [0,17.5,35,52.5,70];
 cleaning_workers_temporary_hourly_wage = 24.98;
 cleaning_workers_temporary_monthly_wage = 4646;
 
+C_TEMP_MIN_WAGE = 4646;
+CLEANING_RECUPERATION_VALUE = 423;
 TWO_YEAR_VETERAN_BONUS = 0.35;
 SIX_YEAR_VETERAN_BONUS = 0.46;
 

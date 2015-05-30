@@ -71,7 +71,7 @@ Worker.prototype = {
         
         if(doneWaiting){
           num_months += partial; total_months+= partial;
-          periodTotal += partial * this.getMonthWage(periodMinWage, periodStart) * periodPercentage;
+          periodTotal += partial * this.getMonthWage(periodStart) * periodPercentage;
         }
 
         period--;
@@ -86,10 +86,10 @@ Worker.prototype = {
       
       //different columns depending on sep:
       if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing) ){
-        rows.push([period, num_months, this.getMonthWage(periodMinWage, periodStart), periodPercentageString, periodTotal, periodTotal]);
+        rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodTotal, periodTotal]);
       }
       else {
-        rows.push([period, num_months, this.getMonthWage(periodMinWage, periodStart), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
+        rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
       }
 
       periodStart = new Date(periodEnd);
@@ -131,9 +131,13 @@ Worker.prototype = {
     return [recuperation_value, recuperation_total, recuperation_total_without_oldness, rows];
   },
 
-	getMonthWage: function (minMonthValue, date) {
-		return minMonthValue;
+	getMonthWage: function (date) {
+		return getMinMonthWage(date);
 	},
+
+  getMinMonthWage: function(date) {
+    return getPensionData(date)[PENSION_MIN];
+  },
 
   getNumWorkDaysInMonth: function () {
     //abstract
@@ -143,7 +147,7 @@ Worker.prototype = {
   getVacationDayValue : function (date){
     //Calculate the value of a vacation day based minimum wage on the pension data of the end of work date
     minMonthValue = pension_data[getPensionDataIndex(this.endWorkDate)][1];
-    month_value = this.getMonthWage(minMonthValue, date);
+    month_value = this.getMonthWage(date);
     return month_value / this.getNumWorkDaysInMonth();
   },
 
@@ -164,7 +168,7 @@ Worker.prototype = {
   },
 
   getRecuperationValue: function(date){
-  return latest_recuperation_value;
+    return latest_recuperation_value;
   },
 
   getVacationDays: function (year, months) { 
@@ -209,7 +213,7 @@ Worker.prototype = {
   },
 
   getDayWage: function (minMonthValue, date) {
-    var month_value = this.getMonthWage (minMonthValue, date);
+    var month_value = this.getMonthWage (date);
 
     if(this.daysPerWeek == 6)
       return month_value / SIX_WORK_DAYS_IN_MONTH;
@@ -219,15 +223,11 @@ Worker.prototype = {
 
   isPensionSame: function (dateA, dateB) {
     //whether the pension in the index is the same considering the wage and the percentage
-
     var indexA = getPensionDataIndex(dateA);
     var indexB = getPensionDataIndex(dateB);
-    var minWageA = pension_data[indexA][1];
-    var minWageB = pension_data[indexB][1];
-
     //check wage diff
-    var wageA = this.getMonthWage(minWageA, dateA);
-    var wageB = this.getMonthWage(minWageB, dateB);
+    var wageA = this.getMonthWage(dateA);
+    var wageB = this.getMonthWage(dateB);
     if(wageA != wageB)
       return false;
     //check pension percentage diff
@@ -297,7 +297,8 @@ HourlyWorker.prototype = {
     return numDays;
   },
 
-  getMonthWage: function (minMonthValue, date) {
+  getMonthWage: function (date) {
+    var minMonthValue = this.getMinMonthWage(date);
     var num_hours_in_day = this.hoursPerWeek / this.daysPerWeek;
     var hour_value = this.dailyWage / num_hours_in_day;
     var min_hour_value = minMonthValue / WEEKS_IN_MONTH / HOURS_IN_WEEK;
@@ -306,8 +307,8 @@ HourlyWorker.prototype = {
     return this.dailyWage * num_days_in_week * WEEKS_IN_MONTH;
   },
 
-  getDayWage: function (minMonthValue, date) {
-    var month_value = getMonthWage (minMonthValue, date);
+  getDayWage: function (date) {
+    var month_value = getMonthWage (date);
     return month_value / this.daysPerWeek / WEEKS_IN_MONTH;
   },
 }
@@ -325,9 +326,10 @@ MonthlyWorker.prototype = {
   getPartTimeFraction: function() {
     return this.workPercentage/100;
   },
-  getMonthWage: function (minMonthValue, date) {
+  getMonthWage: function (date) {
     //the objects monthly wage variable is the user input, not the actual wage
     var monthWage = this.monthlyWage
+    var minMonthValue = this.getMinMonthWage(date);
     minMonthValue = minMonthValue*(this.workPercentage/100);
     if(minMonthValue > monthWage){
       monthWage = minMonthValue;
@@ -359,14 +361,14 @@ AgriculturalWorker.prototype = {
     return this.roundVacationDays(vacation_days);
   },
 
-  getMonthWage: function (minMonthValue, date) {
+  getMonthWage: function (date) {
     //first get the input wage by using 0 as minimum wage
-    var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, 0, date);
+    var monthWage = this.monthlyWage;
     //add pocket money
     monthWage += this.allowance * WEEKS_IN_MONTH;
     //agr addition to min wage
     minMonthValue += getItem(agr_min_wage_bonus, date);
-    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, date);
+    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
     return monthWage;
   },
 
@@ -384,20 +386,20 @@ function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibl
 }
 
 Caretaker.prototype = {
-  getMonthWage: function (minMonthValue, date) {
+  getMonthWage: function (date) {
       //first get the input wage by using 0 as minimum wage
-    var monthWage = MonthlyWorker.prototype.getMonthWage.call(this, 0, date);
+    var monthWage = this.monthlyWage;
     //add pocket money
     monthWage += this.allowance * WEEKS_IN_MONTH;
-    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, minMonthValue, date);
+    monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
     return monthWage;
     },
 }
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, workPercentage, hourlyWage, cleaningType, overtime125, overtime150) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
+function CleaningWorker(startWorkDate, endWorkDate, workPercentage, hourlyWage, cleaningType, overtime125, overtime150) {
+	Worker.call(this, startWorkDate, endWorkDate, false, false);
   this.workPercentage = workPercentage;
   this.hourlyWage = hourlyWage;
   this.cleaningType = cleaningType;
@@ -405,21 +407,32 @@ function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEl
   this.overtime150 = overtime150;
 }
 
+C_PRIVATE　= 1;
+C_PUBLIC　= 2;
+C_HOTEL　= 3;
 CleaningWorker.prototype = {
   getPartTimeFraction : function() {
     return this.workPercentage / 100.0;
   },
 
-  getMonthWage: function (minMonthValue, date) {
+  getMonthWage: function (date) {
+    var minMonthValue = this.getMinMonthWage(date);
     var min_hour_value = minMonthValue / HOURS_IＮ_MONTH;
     var hour_value = (min_hour_value > this.hourlyWage) ? min_hour_value : this.hourlyWage;
-    var yearNum = getMonthsDiff(this.startWorkDate, date)/12.0;
-    if(yearNum >= 6){
-      hour_value += SIX_YEAR_VETERAN_BONUS;
-    }
-    else if(yearNum >= 2)
-    {
-      hour_value += TWO_YEAR_VETERAN_BONUS;
+    //in case it is NaN for some odd reason
+    if(hour_value>0 && hour_value<0)
+      hour_value = min_hour_value;
+    //if expansion date in passed
+    if(date >= this.getExpansionDate()){
+      //hourly bonus
+      var yearNum = getMonthsDiff(this.startWorkDate, date)/12.0;
+      if(yearNum >= 6){
+        hour_value += SIX_YEAR_VETERAN_BONUS;
+      }
+      else if(yearNum >= 2)
+      {
+        hour_value += TWO_YEAR_VETERAN_BONUS;
+      }
     }
     return hour_value * HOURS_IＮ_MONTH * this.getPartTimeFraction();
   },
@@ -427,5 +440,31 @@ CleaningWorker.prototype = {
   getNumWorkDaysInMonth: function() {
     return FIVE_WORK_DAYS_IN_MONTH * this.getPartTimeFraction();
   },
+
+  getExpansionDate: function() {
+    switch(this.cleaningType){
+      case C_PRIVATE:
+        return new Date("3-1-2014");
+      case C_PUBLIC　:
+        return new Date("11-1-2013");
+      case C_HOTEL　:
+        return new Date("7-1-2014");
+    }
+  },
+
+  getRecuperationValue: function(date){
+    if(date >= this.getExpansionDate())
+      return CLEANING_RECUPERATION_VALUE;
+    else
+      return Worker.prototype.getRecuperationValue.call(this, date);
+  },
+
+  getMinMonthWage: function(date){
+    var minMonthValue = Worker.prototype.getMinMonthWage.call(this, date);
+    if(date >= this.getExpansionDate()){
+      minMonthValue = Math.max(minMonthValue, C_TEMP_MIN_WAGE);
+    }
+    return minMonthValue;
+  }
 }
 extend(Worker, CleaningWorker);
