@@ -3,6 +3,8 @@ SIX_WORK_DAYS_IN_MONTH = 25;
 FIVE_WORK_DAYS_IN_MONTH = 21;
 HOURS_IN_WEEK = 43;
 TOTAL_DAYS_IN_MONTH = 30;
+HOURS_IＮ_MONTH = 186;
+
 
 holiday_ratio = 1.5;
 agr_holiday_ratio = 1.75;
@@ -30,11 +32,23 @@ x_day_week_vacations = [one_day_week_vacations,
 agr_vacations = [12,12,12,16,16];
 agr_min_wage_bonus = [0,17.5,35,52.5,70];
 
+cleaning_workers_temporary_hourly_wage = 24.98;
+cleaning_workers_temporary_monthly_wage = 4646;
+
+TWO_YEAR_VETERAN_BONUS = 0.35;
+SIX_YEAR_VETERAN_BONUS = 0.46;
+
 pension_waiting_data = [
 [new Date('2008-01-01'),9],
 [new Date('2009-01-01'),6],
 ];
 
+PENSION_DATE = 0;
+PENSION_MIN = 1;
+//gemel
+PENSION_G = 2;
+//pitzuim
+PENSION_P = 3;
 pension_data=[
 [new Date('2008-01-01'),3710,0.00833,0.00833],
 [new Date('2008-02-01'),3710,0.00833,0.00833],

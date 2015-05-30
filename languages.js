@@ -10,6 +10,7 @@
 	month : ['Month','חודש'],
 	month_wage : ['Salary (NIS)','משכורת חודשית בשקלים'],
 	daily_wage : ['Daily Wage (NIS)','שכר ליום בשקלים'],
+	hourly_wage : ['Hourly Wage (NIS)','משכורת שעתית בשקלים'],
 	week_allowance : ['Weekly Allowance (NIS)','דמי כיס שבועיים'],
 	holidays_for_calc : ['Number of Holidays','ימי חג לחישוב'],
 	calc_total_w_oldness : ['Consider Statue of Limitations','חישוב בהתחשב בהתיישנות'],

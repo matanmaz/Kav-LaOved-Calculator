@@ -80,7 +80,7 @@ function initPage() {
 	}
 	//Cleaning Employee Type
 	formElement25 = "<tr id='formElementRow25-%d'><td>"+STR.cleaning_type[LANG] + ":</td><td>" 
-		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1'/>" + STR.cleaning_private[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1' checked='checked'/>" + STR.cleaning_private[LANG] 
 		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='2'/>" + STR.cleaning_public[LANG] 
 		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='3'/>" + STR.cleaning_hotel[LANG] 
 		+ "</td></tr>";
@@ -101,21 +101,23 @@ function initPage() {
 	//End Date
 	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
 	//Month Wage
-	addInputToForms([1,3,4], STR.month_wage[LANG], "number", 4, "");
+	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,4], STR.month_wage[LANG], "number", 4, "");
 	//Work Percentage
-	addInputToForms([4], STR.work_percentage[LANG], "number", 20, "100");
+	addInputToForms([CLEANING_WORKER_FORM, MONTHLHY_WORKER_FORM], STR.work_percentage[LANG], "number", 20, "100");
 	//Daily Wage
-	addInputToForms([CLEANING_WORKER_FORM,2], STR.daily_wage[LANG], "number", 5, "");
+	addInputToForms([DAILY_WORKER_FORM], STR.daily_wage[LANG], "number", 5, "");
+	//Hourly Wage
+	addInputToForms([CLEANING_WORKER_FORM], STR.hourly_wage[LANG], "number", 28, "0")
 	//Week's Allowance
-	addInputToForms([1,3], STR.week_allowance[LANG], "number", 6, "");
+	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM], STR.week_allowance[LANG], "number", 6, "");
 	//Num Holidays
-	addInputToForms([1,3,4], STR.holidays_for_calc[LANG], "number", 7, "0");
+	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM], STR.holidays_for_calc[LANG], "number", 7, "0");
 	//Words Days in a Week
-	addInputToForms([CLEANING_WORKER_FORM,2], STR.num_days_in_week[LANG], "number", 8, "0");
+	addInputToForms([DAILY_WORKER_FORM], STR.num_days_in_week[LANG], "number", 8, "0");
 	//Hours in a Week
-	addInputToForms([CLEANING_WORKER_FORM,2], STR.num_hours_in_week[LANG], "number", 9, "0");
+	addInputToForms([DAILY_WORKER_FORM], STR.num_hours_in_week[LANG], "number", 9, "0");
 	//Five Day Week?
-	addInputToForms([4], STR.five_day_week[LANG], "checkbox", 19, "");
+	addInputToForms([MONTHLHY_WORKER_FORM], STR.five_day_week[LANG], "checkbox", 19, "");
 	//Eligible for Compensation?
 	addInputToAllForms(STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
 	//Show Eligibility Details?
@@ -147,17 +149,18 @@ var worker;
 function main(funcs) {
 	var month_value = 1*$('#formElement4-'+selectedForm).val();
 	var allowance = 1*$('#formElement6-'+selectedForm).val();
-	var day_value = $('#formElement5-2').val();
-	var num_days_in_week = $('#formElement8-2').val();
-	var num_hours_in_week = $('#formElement9-2').val();
-	var work_percentage = $('#formElement20-4').val();
+	var day_value = $('#formElement5-'+selectedForm).val();
+	var hour_value = $('#formElement28-'+selectedForm).val();
+	var num_days_in_week = $('#formElement8-'+selectedForm).val();
+	var num_hours_in_week = $('#formElement9-'+selectedForm).val();
+	var work_percentage = $('#formElement20-'+selectedForm).val();
 	var five_day_week = $('#formElement19-'+selectedForm).is(':checked');
 	var cleaning_type = $("input[name=cleaning_type]:radio:checked").val();
 	var overtime125 = $('#formElement26-'+selectedForm).val();
 	var overtime150 = $('#formElement27-'+selectedForm).val();
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
-			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week, cleaning_type, 
+			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), work_percentage, hour_value, cleaning_type, 
 				overtime125, overtime150);
 			break;
 		case CARETAKER_FORM:
@@ -270,10 +273,17 @@ function getOldness(period, yearsBack){
 	return [0,0];
 }
 
+function getPensionData(date) {
+	var index = getPensionDataIndex(date);
+	var data = pension_data[index];
+	data[0] = date;
+	return data;
+}
+
 function getPensionDataIndex(date) {
 	//util function
 	running_index = 0;
-	while(date >= pension_data[running_index][0])
+	while(running_index < pension_data.length && date >= pension_data[running_index][0])
 			running_index++;
 		running_index--;
 	return running_index
@@ -619,6 +629,13 @@ function addMonth (date, month) {
 	//utility
 	newDate = new Date(date);
 	newDate.setMonth(date.getMonth()+month);
+	return newDate;
+}
+
+function addDay (date, days) {
+	//utility
+	newDate = new Date(date);
+	newDate.setDate(date.getDate()+days);
 	return newDate;
 }
 

@@ -19,44 +19,36 @@ Worker.prototype = {
     var doneWaiting = false;
     var periodStart = new Date(this.startWorkDate);
     var periodEnd, period;
-    var running_index = 0;
+    var running_date = new Date(this.startWorkDate);
 
     //handle case that work started before pension_data:
-    if(this.startWorkDate < pension_data[running_index][0]){
-      months_waited += getMonthsDiff(this.startWorkDate, pension_data[running_index][0]);
-      periodStart = new Date(pension_data[running_index][0]);
-    }
-    else{
-      //find the first pension_data by running on running index
-      running_index = getPensionDataIndex(this.startWorkDate);
+    if(this.startWorkDate < pension_data[0][0]){
+      months_waited += getMonthsDiff(this.startWorkDate, pension_data[0][0]);
+      periodStart = new Date(pension_data[0][0]);
     }
 
-    while(running_index<pension_data.length && pension_data[running_index][0]<this.endWorkDate){
+    while(running_date<this.endWorkDate){
       var num_months = 0;
-      var startIndex = running_index;
-      var periodMinWage = pension_data[running_index][1];
-      var periodPercentage = pension_data[running_index][2];
+      var startDate = new Date(running_date);
+      var periodPensionData = getPensionData(startDate);
+      var periodMinWage = periodPensionData[PENSION_MIN];
+      var periodPercentage = periodPensionData[PENSION_G];
       var periodTotal = 0;
 
-      //run index up until pension changed, this defines the period/row
-      while(pension_data.length > running_index 
-        && pension_data[running_index][0] < this.endWorkDate 
-        && this.isPensionSame(startIndex,running_index, Math.floor(total_months/12), periodMinWage)){
-        running_index++;
+      //run date up a day at a time (SLOW!!) until pension changed, this defines the period/row
+      while(running_date < this.endWorkDate 
+        && this.isPensionSame(periodStart, running_date)){
+        running_date.setDate(running_date.getDate()+1);
       }
 
-      if(pension_data.length == running_index){
+      if(running_date == this.endWorkDate){
         periodEnd = new Date(this.endWorkDate);
         period = getMonthsDiff(periodStart, periodEnd);
         periodEnd.setDate(periodEnd.getDate()-1);
       }
-      else if(pension_data[running_index][0] >= this.endWorkDate){
-        periodEnd = new Date(this.endWorkDate);
-        period = getMonthsDiff(periodStart, periodEnd);
-      }
       else
       {
-        periodEnd = new Date(pension_data[running_index][0]);
+        periodEnd = new Date(running_date);
         periodEnd.setDate(periodEnd.getDate()-1);
         period = getMonthsDiff(periodStart, periodEnd);
         
@@ -102,6 +94,7 @@ Worker.prototype = {
 
       periodStart = new Date(periodEnd);
       periodStart.setDate(periodEnd.getDate()+1);
+      running_date = new Date(periodStart);
     }
     return [total_value, rows];
   },
@@ -228,14 +221,27 @@ Worker.prototype = {
       return month_value / FIVE_WORK_DAYS_IN_MONTH;
   },
 
-  isPensionSame: function (indexA, indexB, yearNum, periodMinWage) {
+  isPensionSame: function (dateA, dateB) {
     //whether the pension in the index is the same considering the wage and the percentage
+
+    var indexA = getPensionDataIndex(dateA);
+    var indexB = getPensionDataIndex(dateB);
     var minWageA = pension_data[indexA][1];
     var minWageB = pension_data[indexB][1];
-    var monthWage = this.getMonthWage(periodMinWage, yearNum)
+    var yearNumA = Math.floor(getMonthsDiff(this.startWorkDate, dateA) / 12);
+    var yearNumB = Math.floor(getMonthsDiff(this.startWorkDate, dateB) / 12);
+    /*var monthWage = this.getMonthWage(periodMinWage, yearNum)
     var isEarningMinWage = monthWage <= minWageB*this.getPartTimeFraction();
-    var startIndex = isEarningMinWage ? 1 : 2;
-    for(var i=startIndex;i<pension_data[indexA].length;i++)
+    var startIndex = isEarningMinWage ? 1 : 2;*/
+    
+    
+    //check wage diff
+    var wageA = this.getMonthWage(minWageA, yearNumA);
+    var wageB = this.getMonthWage(minWageB, yearNumB);
+    if(wageA != wageB)
+      return false;
+    //check pension percentage diff
+    for(var i=2;i<pension_data[indexA].length;i++)
       if(pension_data[indexA][i]!=pension_data[indexB][i])
         return false;
     return true;
@@ -266,7 +272,6 @@ HourlyWorker.prototype = {
   getVacationDays: function(year, months){
     year = year - 1;
     fiveDayWeekVacation = getItem(five_day_week_vacations, year);
-    sixDayWeekVacation = getItem(six_day_week_vacations, year);
 
     if(this.daysPerWeek>=1)
     {
@@ -401,11 +406,35 @@ Caretaker.prototype = {
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage, cleaningType, overtime125, overtime150) {
-	HourlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, daysPerWeek, hoursPerWeek, dailyWage);
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, workPercentage, hourlyWage, cleaningType, overtime125, overtime150) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
+  this.workPercentage = workPercentage;
+  this.hourlyWage = hourlyWage;
   this.cleaningType = cleaningType;
   this.overtime125 = overtime125;
   this.overtime150 = overtime150;
 }
 
-extend(HourlyWorker, CleaningWorker);
+CleaningWorker.prototype = {
+  getPartTimeFraction : function() {
+    return this.workPercentage / 100.0;
+  },
+
+  getMonthWage: function (minMonthValue, yearNum) {
+    var min_hour_value = minMonthValue / HOURS_IＮ_MONTH;
+    var hour_value = (min_hour_value > this.hourlyWage) ? min_hour_value : this.hourlyWage;
+    if(yearNum >= 6){
+      hour_value += SIX_YEAR_VETERAN_BONUS;
+    }
+    else if(yearNum >= 2)
+    {
+      hour_value += TWO_YEAR_VETERAN_BONUS;
+    }
+    return hour_value * HOURS_IＮ_MONTH * this.getPartTimeFraction();
+  },
+
+  getNumWorkDaysInMonth: function() {
+    return FIVE_WORK_DAYS_IN_MONTH * this.getPartTimeFraction();
+  },
+}
+extend(Worker, CleaningWorker);
