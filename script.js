@@ -1,4 +1,4 @@
-﻿last_update = "9.5.2015"
+﻿last_update = "30.5.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -133,10 +133,11 @@ function initPage() {
 
 	addInputToForms([CLEANING_WORKER_FORM], STR.overtime[LANG] + " 150%", "number", 27, "0");
 
+	//calc_recuper_vacation_and_holidays button
 	forms.map(function(form){
 		form.addButton(STR.calc_recuper_vacation_and_holidays[LANG], 15, "resetOutput();main([calcRecuper,calcVacation,calcHolidays]);");
 	});
-
+	//calc compen pension and early button
 	forms.map(function(form){
 		form.addButton(STR.calc_compen[LANG], 17, "resetOutput();main([calcPension,calcCompen,calcEarly]);");
 	});
@@ -283,8 +284,10 @@ function getPensionData(date) {
 function getPensionDataIndex(date) {
 	//util function
 	running_index = 0;
-	while(running_index < pension_data.length && date >= pension_data[running_index][0])
-			running_index++;
+	while(running_index < pension_data.length && date >= pension_data[running_index][0]){
+		running_index++;
+	}
+	if(running_index>0)
 		running_index--;
 	return running_index
 }
