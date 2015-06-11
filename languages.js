@@ -67,6 +67,7 @@
 	subtotal_pension : ['Pension Portion','רכיב הגמל'],
 	subtotal_separation : ['Separation Pay Portion','רכיב הפיצויים'],
 	subtotal_period : ['Period Total','סכום תקופה'],
+	subtotal_hishtalmut : ['Hishtalmut Pay Portion','רכיב השתלמות'],
 	print : ['Print','הדפס'],
 	reset : ['Reset','אתחל'],
 	num_holidays : ['Number of holidays not yet used or payed','ימי חג שלא נוצלו או שולמו'],

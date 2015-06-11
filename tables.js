@@ -51,6 +51,10 @@ PENSION_MIN = 1;
 PENSION_G = 2;
 //pitzuim
 PENSION_P = 3;
+
+HISHTALMUT_PERCENTAGE = 0.075;
+HISHTALMUT_START = new Date('2014-10-1');
+
 pension_data=[
 [new Date('2008-01-01'),3710,0.00833,0.00833],
 [new Date('2008-07-01'),3850,0.00833,0.00833],

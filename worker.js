@@ -33,7 +33,10 @@ Worker.prototype = {
       var periodPensionData = getPensionData(startDate);
       var periodMinWage = periodPensionData[PENSION_MIN];
       var periodPercentage = periodPensionData[PENSION_G];
+      var periodPensionTotal = 0;
+      var periodHishtalmutTotal = 0;
       var periodTotal = 0;
+      var hishtalmutPercentage = HISHTALMUT_PERCENTAGE;
 
       //run date up a day at a time (SLOW!!) until pension changed, this defines the period/row
       while(running_date < this.endWorkDate 
@@ -71,25 +74,53 @@ Worker.prototype = {
         
         if(doneWaiting){
           num_months += partial; total_months+= partial;
-          periodTotal += partial * this.getMonthWage(periodStart) * periodPercentage;
+          periodPensionTotal += partial * this.getMonthWage(periodStart) * periodPercentage;
         }
 
         period--;
       }
-      (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? total_value += periodTotal : total_value += periodTotal * 2;
       
+      (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodTotal += periodPensionTotal : periodTotal += periodPensionTotal * 2;
+      
+      //hishtalmut
+      if(this.hasHishtalmut(periodEnd)){
+        running_date = new Date(periodStart);
+        while(!this.hasHishtalmut(running_date)){
+          running_date.setDate(running_date.getDate()+1);
+        }
+        hishtalmutPeriod = getMonthsDiff(running_date, periodEnd);
+        periodHishtalmutTotal += this.getMonthWage(periodStart) * hishtalmutPercentage * hishtalmutPeriod;
+        periodTotal += periodHishtalmutTotal;
+      }
+
+      //add to the total of the entire table
+      total_value += periodTotal;
+      
+      //period string
       period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
       
-      //whether we show X% or X%+X%:
-      periodPercentageString = sprintf("%.2f%%", periodPercentage*100)
-      periodPercentageString = (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodPercentageString : periodPercentageString + "+" + periodPercentageString
+      //whether we show X% or X%+X% or X%+X%+Y%:
+      hishtalmutPercentageString = sprintf("%.2f%%", hishtalmutPercentage*100);
+      periodPercentageString = sprintf("%.2f%%", periodPercentage*100);
+      periodPercentageString = (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodPercentageString : periodPercentageString + "+" + periodPercentageString;
+      periodPercentageString = (this.hasHishtalmut)? periodPercentageString + "+" + hishtalmutPercentageString : periodPercentageString;
       
       //different columns depending on sep:
       if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing) ){
-        rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodTotal, periodTotal]);
+        if(this.hasHishtalmut(this.endWorkDate)){
+          rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodHishtalmutTotal, periodTotal]);
+        }
+        else{
+          rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodTotal]);
+        }
       }
       else {
-        rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodTotal, periodTotal, periodTotal*2]);
+        if(this.hasHishtalmut(this.endWorkDate)){
+          rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodPensionTotal, periodHishtalmutTotal, periodTotal]);
+        }
+        else{
+          rows.push([period, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodPensionTotal, periodTotal]);
+        }
       }
 
       periodStart = new Date(periodEnd);
@@ -234,12 +265,16 @@ Worker.prototype = {
     for(var i=2;i<pension_data[indexA].length;i++)
       if(pension_data[indexA][i]!=pension_data[indexB][i])
         return false;
+    if(this.hasHishtalmut(dateA)!=this.hasHishtalmut(dateB))
+      return false;
     return true;
   },
 
   getHolidayValue: function (date) {
     return holiday_ratio * this.getVacationDayValue(date);
   },
+
+  hasHishtalmut: function(date) { return false},
 }
 
 function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, dailyWage, daysPerWeek, hoursPerWeek) {
@@ -465,6 +500,8 @@ CleaningWorker.prototype = {
       minMonthValue = Math.max(minMonthValue, C_TEMP_MIN_WAGE);
     }
     return minMonthValue;
-  }
+  },
+
+  hasHishtalmut: function(date) { return date >= HISHTALMUT_START},
 }
 extend(Worker, CleaningWorker);

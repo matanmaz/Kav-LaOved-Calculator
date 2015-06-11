@@ -398,16 +398,29 @@ function calcPension(isFirst){
 			return;
 	var sep_elig = worker.isEligibleToSeperation;
 	var sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
+	var hishtalmut = worker.hasHishtalmut(end_date);
 	//define output table headers
 	
 	//different columns depending on separation stuff:
 	if(sep_elig && (!sep_elig_show_details) ){
-		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_period[LANG]];
-		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
+		if(hishtalmut){
+			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_hishtalmut[LANG], STR.subtotal_period[LANG]];
+			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
+		}
+		else{
+			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_period[LANG]];
+			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
+		}
 	}
 	else {
-		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
-		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
+		if(hishtalmut){
+			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_hishtalmut[LANG], STR.subtotal_period[LANG]];
+			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f','%.2f']
+		}
+		else{
+			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
+			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
+		}
 	}
 
 	var result = worker.getPensionTable(sep_elig_show_details);
