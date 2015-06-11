@@ -396,7 +396,7 @@ function calcPension(isFirst){
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
-	var sep_elig = worker.isSeparationEligible;
+	var sep_elig = worker.isEligibleToSeperation;
 	var sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
 	//define output table headers
 	
