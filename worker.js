@@ -629,5 +629,16 @@ CleaningWorker.prototype = {
   getTransportationCostsPension: function() {
     return this.transportationCosts * pension_data_cleaner_transportation_costs;
   },
+  
+  getRecuperationDays: function(year, ignorePartial) {
+    var partial = this.getPartTimeFraction();
+    if(ignorePartial)
+      partial = 1;
+
+    if(year-1 < recuperation_days_cleaner.length)
+      return partial*recuperation_days_cleaner[year-1];
+    else
+      return partial*recuperation_days_cleaner[recuperation_days_cleaner.length-1];
+  },
 }
 extend(Worker, CleaningWorker);

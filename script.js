@@ -111,7 +111,7 @@ function initPage() {
 	//Week's Allowance
 	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM], STR.week_allowance[LANG], "number", 6, "");
 	//Num Holidays
-	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM], STR.holidays_for_calc[LANG], "number", 7, "0");
+	addInputToForms([CLEANING_WORKER_FORM,CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM], STR.holidays_for_calc[LANG], "number", 7, "0");
 	//Words Days in a Week
 	addInputToForms([DAILY_WORKER_FORM], STR.num_days_in_week[LANG], "number", 8, "0");
 	//Hours in a Week

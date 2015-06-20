@@ -77,3 +77,5 @@ pension_data_cleaner_overtime=[
 [new Date('2015-07-01'), 0.075, 0.06],
 ];
 pension_data_cleaner_transportation_costs= 0.05;
+
+recuperation_days_cleaner = [7,7,7,9,9,9,9,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,12,12,13];
