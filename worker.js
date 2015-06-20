@@ -158,34 +158,49 @@ Worker.prototype = {
 
   getRecuperationTable: function() {
     var rows = [];
+    var recuperationValues = [];
 
     var partial = this.getPartTimeFraction();//part time consideration
 
-    var recuperation_value = this.getRecuperationValue(this.endWorkDate);//value of each recuperation day
     var recuperation_total = 0;//running total
     var recuperation_total_without_oldness = 0;
 
     //calculate and ignore oldness and calculate what will be shown
-    for(i=1;i<=this.dateDiff[0];i++)
+    var running_date = new Date(this.startWorkDate);
+    while(running_date <= this.endWorkDate)
     {
-      var days = this.getRecuperationDays(i);
-      var irecuperation_value = days * recuperation_value;
+      var days = this.getRecuperationDays(running_date) / 12.0;
+      var irecuperation_value = 0;
+      if(this.isEligibleToRecuperation(running_date))
+         irecuperation_value = days * this.getRecuperationValue(running_date);
       recuperation_total_without_oldness += irecuperation_value;
-      rows[i-1]=[i, this.getRecuperationDays(i, true), days, irecuperation_value];
+      recuperationValues.push([days, irecuperation_value]);
+
+      //increment date by a month
+      running_date.setMonth(running_date.getMonth()+1);
+    }
+    for(i=0; i<this.dateDiff[0];i++){
+      var yearsDaysTotal = 0;
+      var yearsRecuperationTotal = 0;
+      var running_date = (new Date(this.startWorkDate)).setYear(this.startWorkDate.getUTCFullYear()+i);
+      for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1]; j++){
+        yearsDaysTotal += recuperationValues[j][0];
+        yearsRecuperationTotal += recuperationValues[j][1];
+      }
+      rows[i]=[i, this.getRecuperationDays(running_date, true), yearsDaysTotal, yearsRecuperationTotal];
       if(dateDiff[0] - i < 2)//oldness calc: include last two years
       {
-        recuperation_total += rows[i-1][3];
+        recuperation_total += rows[i][3];
       }
     }
-    //if worked part of a year this is the remainder
-    var remainder = this.getRecuperationDays(i) * dateDiff[1]/12;
-    
-    if(dateDiff[0]>0 && remainder>0){
-      recuperation_total_without_oldness += remainder * recuperation_value;
-      rows[i-1] = [i, this.getRecuperationDays(i, true), remainder, remainder * recuperation_value];
-      recuperation_total += rows[i-1][3];
-    }
-    return [recuperation_value, recuperation_total, recuperation_total_without_oldness, rows];
+    return [this.getRecuperationValue(this.endWorkDate), recuperation_total, recuperation_total_without_oldness, rows];
+  },
+
+  isEligibleToRecuperation: function(date) {
+    var yearAfterStart = new Date(this.startWorkDate);
+    yearAfterStart.setYear(yearAfterStart.getUTCFullYear()+1);
+    yearAfterStart.setDate(yearAfterStart.getDate()-1);
+    return this.endWorkDate>=yearAfterStart;
   },
 
   getPeriodPensionTotal: function(date, months) {
@@ -236,13 +251,14 @@ Worker.prototype = {
     return 1;
   },
 
-  getRecuperationDays: function(year, ignorePartial) {
+  getRecuperationDays: function(date, ignorePartial) {
+    var year = getDateDiff(this.startWorkDate,date)[0];
     var partial = this.getPartTimeFraction();
     if(ignorePartial)
       partial = 1;
 
     if(year-1 < recuperation_days.length)
-      return partial*recuperation_days[year-1];
+      return partial*recuperation_days[year];
     else
       return partial*recuperation_days[recuperation_days.length-1];
   },
@@ -629,16 +645,27 @@ CleaningWorker.prototype = {
   getTransportationCostsPension: function() {
     return this.transportationCosts * pension_data_cleaner_transportation_costs;
   },
-  
-  getRecuperationDays: function(year, ignorePartial) {
-    var partial = this.getPartTimeFraction();
-    if(ignorePartial)
-      partial = 1;
 
-    if(year-1 < recuperation_days_cleaner.length)
-      return partial*recuperation_days_cleaner[year-1];
+  getRecuperationDays: function(date, ignorePartial) {
+    if(date >= this.getExpansionDate()){
+      var year = getDateDiff(this.startWorkDate,date)[0];
+      var partial = this.getPartTimeFraction();
+      if(ignorePartial)
+        partial = 1;
+
+      if(year-1 < recuperation_days_cleaner.length)
+        return partial*recuperation_days_cleaner[year];
+      else
+        return partial*recuperation_days_cleaner[recuperation_days_cleaner.length-1];
+    }
     else
-      return partial*recuperation_days_cleaner[recuperation_days_cleaner.length-1];
+      return Worker.prototype.getRecuperationDays.call(this, date, ignorePartial);
+  },
+
+  isEligibleToRecuperation: function(date) {
+    if(date >= this.getExpansionDate())
+      return true;
+    return Worker.prototype.isEligibleToRecuperation.call(this, date);
   },
 }
 extend(Worker, CleaningWorker);

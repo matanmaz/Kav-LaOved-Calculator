@@ -79,3 +79,5 @@ pension_data_cleaner_overtime=[
 pension_data_cleaner_transportation_costs= 0.05;
 
 recuperation_days_cleaner = [7,7,7,9,9,9,9,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,12,12,13];
+cleaning_vacations_five = [10,10,11,11,13,18,19,19,23];
+cleaning_vacations_six = [12,12,13,13,15,20,21,21,26];
