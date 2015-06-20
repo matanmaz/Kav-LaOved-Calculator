@@ -55,6 +55,7 @@ PENSION_P = 3;
 HISHTALMUT_PERCENTAGE = 0.075;
 HISHTALMUT_START = new Date('2014-10-1');
 
+//date, minimum wage, gemel, pitzuyim
 pension_data=[
 [new Date('2008-01-01'),3710,0.00833,0.00833],
 [new Date('2008-07-01'),3850,0.00833,0.00833],
@@ -69,3 +70,10 @@ pension_data=[
 [new Date('2014-01-01'),4300,0.06,0.06],
 [new Date('2015-04-01'),4650,0.06,0.06],
 ];
+
+pension_data_cleaner=[0.07, 0.0833];
+pension_data_cleaner_overtime=[
+[new Date('2013-11-01'), 0.07, 0.06],
+[new Date('2015-07-01'), 0.075, 0.06],
+];
+pension_data_cleaner_transportation_costs= 0.05;

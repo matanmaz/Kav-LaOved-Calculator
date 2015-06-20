@@ -119,7 +119,7 @@ function initPage() {
 	//Five Day Week?
 	addInputToForms([MONTHLHY_WORKER_FORM], STR.five_day_week[LANG], "checkbox", 19, "");
 	//Eligible for Compensation?
-	addInputToForms([DAILY_WORKER_FORM, CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM],STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
+	addInputToForms([CLEANING_WORKER_FORM, DAILY_WORKER_FORM, CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM],STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
 	//Show Eligibility Details?
 	formElement24 = "<tr id='formElementRow24-%d'><td>"+STR.show_elig_details[LANG] + ":</td><td><input type='checkbox' id='formElement24-%d'/></td></tr>";
     $("#form1").append(sprintf(formElement24,1,1));
@@ -128,6 +128,10 @@ function initPage() {
 	$("#form4").append(sprintf(formElement24,4,4));
 	//Calculate with　Ｏｌｄｎｅｓｓ?
 	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
+
+	//transportationCosts
+	addInputToForms([CLEANING_WORKER_FORM], STR.transportationCosts[LANG], "number", 29, "0");
+
 	//Overtime
 	addInputToForms([CLEANING_WORKER_FORM], STR.overtime[LANG] + " 125%", "number", 26, "0");
 
@@ -157,12 +161,14 @@ function main(funcs) {
 	var work_percentage = $('#formElement20-'+selectedForm).val();
 	var five_day_week = $('#formElement19-'+selectedForm).is(':checked');
 	var cleaning_type = $("input[name=cleaning_type]:radio:checked").val();
-	var overtime125 = $('#formElement26-'+selectedForm).val();
-	var overtime150 = $('#formElement27-'+selectedForm).val();
+	var overtime125 = 1*$('#formElement26-'+selectedForm).val();
+	var overtime150 = 1*$('#formElement27-'+selectedForm).val();
+	var transportationCosts = 1*$('#formElement29-'+selectedForm).val();
+
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
-			worker = new CleaningWorker(getStartDate(), getEndDate(), work_percentage, hour_value, cleaning_type, 
-				overtime125, overtime150);
+			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), work_percentage, hour_value, cleaning_type, 
+				transportationCosts, overtime125, overtime150);
 			break;
 		case CARETAKER_FORM:
 			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
@@ -424,8 +430,9 @@ function calcPension(isFirst){
 	}
 
 	var result = worker.getPensionTable(sep_elig_show_details);
-	total_value = result[0];
-	rows = result[1];
+	var total_value = result[0];
+	var rows = result[1];
+	var bottom_lines = result[2];
 
 	//get visual	
 	createOutputTable(isFirst, 
@@ -436,8 +443,9 @@ function calcPension(isFirst){
 		rows, 
 		printFormat);
 	output = $("#div_output");
-	output_body.append(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], 
-		total_value));
+	for(line in bottom_lines){
+		output_body.append(bottom_lines[line]);
+	}
 	
 	//In case both checkmarks are checked, we need the separation pay total saved so that we can deduct it from the compensation total
 	sepPayTotal = 0

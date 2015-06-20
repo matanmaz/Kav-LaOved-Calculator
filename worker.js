@@ -29,11 +29,12 @@ Worker.prototype = {
 
     while(running_date<this.endWorkDate){
       var num_months = 0;
-      var startDate = new Date(running_date);
-      var periodPensionData = getPensionData(startDate);
-      var periodMinWage = periodPensionData[PENSION_MIN];
-      var periodPercentage = periodPensionData[PENSION_G];
+      
+      var periodMinWage = this.getPeriodMinWage(periodStart);
+      var periodPensionPercentage = this.getPeriodPensionPercentage(periodStart);
+      var periodCompensationPercentage = this.getPeriodCompensationPercentage(periodStart);
       var periodPensionTotal = 0;
+      var periodCompensationTotal = 0;
       var periodHishtalmutTotal = 0;
       var periodTotal = 0;
       var hishtalmutPercentage = HISHTALMUT_PERCENTAGE;
@@ -74,13 +75,20 @@ Worker.prototype = {
         
         if(doneWaiting){
           num_months += partial; total_months+= partial;
-          periodPensionTotal += partial * this.getMonthWage(periodStart) * periodPercentage;
+          
         }
 
         period--;
       }
+      //calculate the period totals using the number of months that count
+      periodPensionTotal += this.getPeriodPensionTotal(periodStart, num_months);
+      periodCompensationTotal += this.getPeriodCompensationTotal(periodStart, num_months);
       
-      (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodTotal += periodPensionTotal : periodTotal += periodPensionTotal * 2;
+      //to include the compensation in the total?
+      if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing))
+        periodTotal += periodPensionTotal;
+      else
+        periodTotal += periodPensionTotal + periodCompensationTotal;
       
       //hishtalmut
       if(this.hasHishtalmut(periodEnd)){
@@ -100,10 +108,11 @@ Worker.prototype = {
       period = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
       
       //whether we show X% or X%+X% or X%+X%+Y%:
-      hishtalmutPercentageString = sprintf("%.2f%%", hishtalmutPercentage*100);
-      periodPercentageString = sprintf("%.2f%%", periodPercentage*100);
-      periodPercentageString = (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodPercentageString : periodPercentageString + "+" + periodPercentageString;
-      periodPercentageString = (this.hasHishtalmut)? periodPercentageString + "+" + hishtalmutPercentageString : periodPercentageString;
+      var hishtalmutPercentageString = sprintf("%.2f%%", hishtalmutPercentage*100);
+      var periodPensionPercentageString = sprintf("%.2f%%", periodPensionPercentage*100);
+      var periodCompensationPercentageString = sprintf("%.2f%%", periodCompensationPercentage*100);
+      var periodPercentageString = (this.isEligibleToSeperation && (!isEligibleToSeparationShowing))? periodPensionPercentageString : periodPensionPercentageString + "+" + periodCompensationPercentageString;
+      periodPercentageString = (this.hasHishtalmut(periodStart))? periodPercentageString + "+" + hishtalmutPercentageString : periodPercentageString;
       
       //different columns depending on sep:
       if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing) ){
@@ -127,7 +136,12 @@ Worker.prototype = {
       periodStart.setDate(periodEnd.getDate()+1);
       running_date = new Date(periodStart);
     }
-    return [total_value, rows];
+    var bottom_lines = this.getPensionBottomLine(total_value, isEligibleToSeparationShowing);
+    return [total_value, rows, bottom_lines];
+  },
+
+  getPensionBottomLine: function(total_value, isEligibleToSeparationShowing) {
+    return [sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], total_value)];
   },
 
   getRecuperationTable: function() {
@@ -160,6 +174,29 @@ Worker.prototype = {
       recuperation_total += rows[i-1][3];
     }
     return [recuperation_value, recuperation_total, recuperation_total_without_oldness, rows];
+  },
+
+  getPeriodPensionTotal: function(date, months) {
+    return months * this.getMonthWage(date) * this.getPeriodPensionPercentage(date);
+  },
+
+  getPeriodCompensationTotal: function(date, months) {
+    return months * this.getMonthWage(date) * this.getPeriodCompensationPercentage(date);
+  },
+
+  getPeriodMinWage: function (date) {
+    var periodPensionData = getPensionData(date);
+    return periodPensionData[PENSION_MIN];
+  },
+
+  getPeriodPensionPercentage: function (date) {
+    var periodPensionData = getPensionData(date);
+    return periodPensionData[PENSION_G];
+  },
+
+  getPeriodCompensationPercentage: function (date) {
+    var periodPensionData = getPensionData(date);
+    return periodPensionData[PENSION_P];
   },
 
 	getMonthWage: function (date) {
@@ -433,24 +470,37 @@ Caretaker.prototype = {
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, workPercentage, hourlyWage, cleaningType, overtime125, overtime150) {
-	Worker.call(this, startWorkDate, endWorkDate, false, false);
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleCompensation, workPercentage, hourlyWage, cleaningType, transportationCosts, overtime125, overtime150) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleCompensation, false);
   this.workPercentage = workPercentage;
   this.hourlyWage = hourlyWage;
   this.cleaningType = cleaningType;
+  this.transportationCosts = transportationCosts;
   this.overtime125 = overtime125;
   this.overtime150 = overtime150;
 }
 
-C_PRIVATE　= 1;
-C_PUBLIC　= 2;
-C_HOTEL　= 3;
+C_PRIVATE　= "1";
+C_PUBLIC　= "2";
+C_HOTEL　= "3";
 CleaningWorker.prototype = {
+  /*isPensionSame: function (dateA, dateB) {
+    //dirty fast implementation bc right now only the July 1 2015 thing makes a difference
+    var isSame = Worker.prototype.isPensionSame.call(this, dateA, dateB);
+    var criticalDate = pension_data_cleaner_overtime[1][0];
+    isSame = isSame && (dateA >= criticalDate || dateB < criticalDate);
+    return isSame;
+  },*/
+
   getPartTimeFraction : function() {
     return this.workPercentage / 100.0;
   },
 
   getMonthWage: function (date) {
+     return this.getHourWage(date) * HOURS_IＮ_MONTH * this.getPartTimeFraction();
+  },
+
+  getHourWage: function(date) {
     var minMonthValue = this.getMinMonthWage(date);
     var min_hour_value = minMonthValue / HOURS_IＮ_MONTH;
     var hour_value = (min_hour_value > this.hourlyWage) ? min_hour_value : this.hourlyWage;
@@ -469,7 +519,7 @@ CleaningWorker.prototype = {
         hour_value += TWO_YEAR_VETERAN_BONUS;
       }
     }
-    return hour_value * HOURS_IＮ_MONTH * this.getPartTimeFraction();
+    return hour_value;
   },
 
   getNumWorkDaysInMonth: function() {
@@ -503,5 +553,80 @@ CleaningWorker.prototype = {
   },
 
   hasHishtalmut: function(date) { return date >= HISHTALMUT_START},
+
+  /*getPeriodPensionTotal: function(date, months) {
+    var periodPensionTotal = Worker.prototype.getPeriodPensionTotal.call(this, date, months);
+    if(date >= this.getExpansionDate()){
+
+    }
+    return periodPensionTotal;
+  },
+
+  getPeriodCompensationTotal: function(date, months) {
+    return months * this.getMonthWage(date) * this.getPeriodCompensationPercentage(date);
+  },*/
+
+  getPeriodPensionPercentage: function (date) {
+    if(date < this.getExpansionDate())
+      return Worker.prototype.getPeriodPensionPercentage.call(this, date);
+    else
+      return pension_data_cleaner[0];
+  },
+
+  getPeriodCompensationPercentage: function (date) {
+    if(date < this.getExpansionDate())
+      return Worker.prototype.getPeriodCompensationPercentage.call(this, date);
+    else
+      return pension_data_cleaner[1];
+  },
+
+  getPensionBottomLine: function(total_value, isEligibleToSeparationShowing) {
+    var bottom_lines = [];
+    var overtimeData = this.getOvertimePensionData();
+    var overtimeTotal;
+    //if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing))
+    if(this.isEligibleToSeperation){
+      overtimeTotal = overtimeData[0];
+      bottom_lines.push(sprintf("<b>%s (%.2f%%): %.2f</b><br/>", 
+        STR.overtime_pension[LANG], this.getOvertimePensionPercentages()[0]*100, overtimeTotal));
+    }
+    else{
+      overtimeTotal = overtimeData[0] + overtimeData[1];
+      bottom_lines.push(sprintf("<b>%s (%.2f%%+%.2f%%): %.2f</b><br/>", 
+        STR.overtime_pension[LANG], this.getOvertimePensionPercentages()[0]*100,
+        this.getOvertimePensionPercentages()[1]*100, overtimeTotal));
+    }
+    var transportationCostsTotal = this.getTransportationCostsPension();
+    total_value += overtimeTotal;
+    total_value += transportationCostsTotal;
+    bottom_lines.push(sprintf("<b>%s: %.2f</b><br/>", STR.transportationCosts_pension[LANG], transportationCostsTotal));
+    
+    bottom_lines.push(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], total_value));
+    return bottom_lines;
+  },
+
+  getOvertimePensionData: function() {
+    var value = this.overtime125 * this.getHourWage() * 1.25 + this.overtime150 * this.getHourWage() * 1.5;
+    return [value * this.getOvertimePensionPercentages()[0], 
+      value * this.getOvertimePensionPercentages()[1]];
+  },
+
+  getOvertimePensionPercentages: function() {
+    var overtimePensionPercentage;
+    var overtimeCompensationPercentage;
+    if(this.endWorkDate < pension_data_cleaner_overtime[1][0]){
+      overtimePensionPercentage = pension_data_cleaner_overtime[1][1];
+      overtimeCompensationPercentage  = pension_data_cleaner_overtime[1][2];
+    }
+    else{
+      overtimePensionPercentage = pension_data_cleaner_overtime[0][1];
+      overtimeCompensationPercentage  = pension_data_cleaner_overtime[0][2];
+    }
+    return [overtimePensionPercentage, overtimeCompensationPercentage]
+  },
+
+  getTransportationCostsPension: function() {
+    return this.transportationCosts * pension_data_cleaner_transportation_costs;
+  },
 }
 extend(Worker, CleaningWorker);

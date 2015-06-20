@@ -83,6 +83,8 @@
 	cleaning_public : ['Public','ציבורי'],
 	cleaning_hotel : ['Hotel','מלון'],
 	overtime : ['Overtime Hours Post Reform','שעות נוספות מאז צו ההרחבה'],
-	
+	transportationCosts : ['transportation Costs','הוצאות נסיעה'],
+	overtime_pension : ['Pension for Overtime','פנסיה עבור שעות נוספות'],
+	transportationCosts_pension : ['Pension for Transportation Costs','פנסיה עבור הוצאות נסיעה'],
 }
 //	 : ['',''],
