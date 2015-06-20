@@ -1,4 +1,4 @@
-function Worker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation) {
+function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
 	this.startWorkDate = startWorkDate;
 	this.endWorkDate = endWorkDate;
 	this.isEligibleToSeperation = isEligibleToSeperation;
@@ -7,6 +7,18 @@ function Worker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCo
 }
 
 Worker.prototype = {
+  getCompensation: function(){
+    return this.getMonthWage(this.endWorkDate) * (this.dateDiff[0] + this.dateDiff[1]/12);
+  },
+
+  isEligibleEarlyNoticeCompensation: function(){
+    return this.isSeparationEligible || this.dateDiff[0]<=0
+  },
+
+  isEligibleToSeparationCompensation: function(){
+    return this.isEligibleToSeperation && this.dateDiff[0]>=1;
+  },
+
   getPensionTable: function(isEligibleToSeparationShowing) {
     var total_value = 0;//running total
 
@@ -314,8 +326,8 @@ Worker.prototype = {
   hasHishtalmut: function(date) { return false},
 }
 
-function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, dailyWage, daysPerWeek, hoursPerWeek) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
+function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, dailyWage, daysPerWeek, hoursPerWeek) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation);
 	this.daysPerWeek = daysPerWeek ? daysPerWeek : 0;
 	this.hoursPerWeek = hoursPerWeek ? hoursPerWeek : 0;
 	this.dailyWage = dailyWage ? dailyWage : 0;
@@ -387,8 +399,8 @@ HourlyWorker.prototype = {
 
 extend(Worker, HourlyWorker);
 
-function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, workPercentage, isFiveDayWeek) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation);
+function MonthlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, workPercentage, isFiveDayWeek) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation);
 	this.monthlyWage = isUndefined(monthlyWage) ? 0 : monthlyWage;
   this.workPercentage = isUndefined(workPercentage) ? 100 : workPercentage;
   this.daysPerWeek = isFiveDayWeek ? 5 : 6;
@@ -413,8 +425,8 @@ MonthlyWorker.prototype = {
 
 extend(Worker, MonthlyWorker);
 
-function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, allowance) {
-	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage);
+function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, allowance) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
   this.daysPerWeek = 6;
   this.allowance = allowance;
 }
@@ -451,8 +463,8 @@ AgriculturalWorker.prototype = {
 extend(MonthlyWorker, AgriculturalWorker);
 
 //סיעוד
-function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage, allowance) {
-	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, isEligibleCompensation, monthlyWage);
+function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage, allowance) {
+	MonthlyWorker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWage);
   this.allowance = allowance;
   this.daysPerWeek = 6;
 }
@@ -470,8 +482,8 @@ Caretaker.prototype = {
 extend(MonthlyWorker, Caretaker);
 
 //עובדי נקיון
-function CleaningWorker(startWorkDate, endWorkDate, isEligibleCompensation, workPercentage, hourlyWage, cleaningType, transportationCosts, overtime125, overtime150) {
-	Worker.call(this, startWorkDate, endWorkDate, isEligibleCompensation, false);
+function CleaningWorker(startWorkDate, endWorkDate, isEligibleToSeperation, workPercentage, hourlyWage, cleaningType, transportationCosts, overtime125, overtime150) {
+	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation, false);
   this.workPercentage = workPercentage;
   this.hourlyWage = hourlyWage;
   this.cleaningType = cleaningType;
@@ -484,13 +496,14 @@ C_PRIVATE　= "1";
 C_PUBLIC　= "2";
 C_HOTEL　= "3";
 CleaningWorker.prototype = {
-  /*isPensionSame: function (dateA, dateB) {
-    //dirty fast implementation bc right now only the July 1 2015 thing makes a difference
-    var isSame = Worker.prototype.isPensionSame.call(this, dateA, dateB);
-    var criticalDate = pension_data_cleaner_overtime[1][0];
-    isSame = isSame && (dateA >= criticalDate || dateB < criticalDate);
-    return isSame;
-  },*/
+
+  getCompensation: function(){
+    //from normal wage
+    var compen = this.getMonthWage(this.endWorkDate) * (this.dateDiff[0] + this.dateDiff[1]/12);
+    //add overtime
+    compen += this.getOvertimePensionData()[1];
+    return compen;
+  },
 
   getPartTimeFraction : function() {
     return this.workPercentage / 100.0;
@@ -554,18 +567,6 @@ CleaningWorker.prototype = {
 
   hasHishtalmut: function(date) { return date >= HISHTALMUT_START},
 
-  /*getPeriodPensionTotal: function(date, months) {
-    var periodPensionTotal = Worker.prototype.getPeriodPensionTotal.call(this, date, months);
-    if(date >= this.getExpansionDate()){
-
-    }
-    return periodPensionTotal;
-  },
-
-  getPeriodCompensationTotal: function(date, months) {
-    return months * this.getMonthWage(date) * this.getPeriodCompensationPercentage(date);
-  },*/
-
   getPeriodPensionPercentage: function (date) {
     if(date < this.getExpansionDate())
       return Worker.prototype.getPeriodPensionPercentage.call(this, date);
@@ -603,7 +604,7 @@ CleaningWorker.prototype = {
     
     bottom_lines.push(sprintf("<b>%s: %.2f</b><br/><br/>", STR.total_amount[LANG], total_value));
     return bottom_lines;
-  },
+  },  
 
   getOvertimePensionData: function() {
     var value = this.overtime125 * this.getHourWage() * 1.25 + this.overtime150 * this.getHourWage() * 1.5;

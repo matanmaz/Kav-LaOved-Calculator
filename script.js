@@ -1,4 +1,4 @@
-﻿last_update = "30.5.2015"
+﻿last_update = "20.6.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -164,23 +164,24 @@ function main(funcs) {
 	var overtime125 = 1*$('#formElement26-'+selectedForm).val();
 	var overtime150 = 1*$('#formElement27-'+selectedForm).val();
 	var transportationCosts = 1*$('#formElement29-'+selectedForm).val();
+	var isSep = isSeparationEligible();
 
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
-			worker = new CleaningWorker(getStartDate(), getEndDate(), isSeparationEligible(), work_percentage, hour_value, cleaning_type, 
+			worker = new CleaningWorker(getStartDate(), getEndDate(), isSep, work_percentage, hour_value, cleaning_type, 
 				transportationCosts, overtime125, overtime150);
 			break;
 		case CARETAKER_FORM:
-			worker = new Caretaker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
+			worker = new Caretaker(getStartDate(), getEndDate(), isSep, month_value, allowance);
 			break;
 		case DAILY_WORKER_FORM:
-			worker = new HourlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), day_value, num_days_in_week, num_hours_in_week);
+			worker = new HourlyWorker(getStartDate(), getEndDate(), isSep, day_value, num_days_in_week, num_hours_in_week);
 			break;
 		case AGRICULTURAL_WORKER_FORM:
-			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, allowance);
+			worker = new AgriculturalWorker(getStartDate(), getEndDate(), isSep, month_value, allowance);
 			break;
 		case MONTHLHY_WORKER_FORM:
-			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSeparationEligible(), checkedEligCompen(), month_value, work_percentage, five_day_week);
+			worker = new MonthlyWorker(getStartDate(), getEndDate(), isSep, month_value, work_percentage, five_day_week);
 			break;
 	}
 	for (var i = 0; i < funcs.length; i++) {
@@ -192,8 +193,7 @@ function main(funcs) {
 }
 
 function checkedEligCompen(){
-	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
-	if(sep_elig)
+	if(isSeparationEligible())
 		$('#formElementRow24-'+selectedForm).show();
 	else
 		$('#formElementRow24-'+selectedForm).hide();
@@ -472,26 +472,25 @@ function calcHolidays(isFirst){
 }
 
 function calcCompen (isFirst) {
-	var start_date = getStartDate();
-	var end_date = getEndDate()
-	sep_elig = $('#formElement13-'+selectedForm).is(':checked');
-	sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
-	
+	//if a worker is eligible for separation pay here we calculate that compensation
+	var start_date = worker.startWorkDate;
+	var end_date = worker.endWorkDate;
+	var sep_elig = isSeparationEligible();
+	var sep_elig_show_details = $('#formElement24-'+selectedForm).is(':checked');
+	var month_value = worker.getMonthWage(end_date);
+	var dateDiff = worker.dateDiff;
+
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
 	//convert dates to months and years of work
-	dateDiff = getDateDiff(start_date, end_date);
-
-	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
+	
 
 	//case when compensation is not to be show:
 	//if worker isn't eligible
-	if(!$('#formElement13-'+selectedForm).is(':checked'))
+	if(!isSeparationEligible())
 		return;
 
-	month_value = worker.getMonthWage(end_date);
-	
 	createOutputTable(isFirst, 
 		STR.output_compen[LANG], 
 		start_date, 
@@ -502,21 +501,24 @@ function calcCompen (isFirst) {
 	output = $("#div_output");
 	
 	//alert that worker isn't eligible due to working less than a year
-	if(dateDiff[0]<1) {
+	if(!worker.isEligibleToSeparationCompensation()) {
 		output_body.append("<p>" + STR.output_compen_less_than_year[LANG] + "<p/>");
 	}
 	//in this case indeed some money is deserved and we show the calculation
 	else {
-		compensation = month_value * (dateDiff[0] + dateDiff[1]/12);
-
+		compensation = worker.getCompensation();
 		
-		
-		if(sep_elig && (!sep_elig_show_details) ){
+		if(sep_elig && selectedForm == CLEANING_WORKER_FORM){
+			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
+			 "dir='ltr'>%.2f X %.2f + %.2f = <b>%.2f</b></p>",
+					STR.compen_label5[LANG], dateDiff[0] + dateDiff[1]/12, month_value, worker.getOvertimePensionData()[1], compensation));
+		}
+		else if(sep_elig && (!sep_elig_show_details) ){
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 			 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
 					STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
 		}
-		if(sep_elig && sep_elig_show_details){
+		else if(sep_elig && sep_elig_show_details){
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 			 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
 					STR.output_compen_complement[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
@@ -527,20 +529,18 @@ function calcCompen (isFirst) {
 function calcEarly (isFirst) {
 	var start_date = getStartDate();
 	var end_date = getEndDate()
+	var dateDiff = worker.dateDiff;
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
-	//convert dates to months and years of work
-	dateDiff = getDateDiff(start_date, end_date);
-
 	min_month_value = pension_data[getPensionDataIndex(getEndDate())][1];
 
-	//case when early notice is not to be show:
+	//case when early notice is not to be shown:
 	//if worker isn't eligible and has worked at least a year 
-	if(!$('#formElement13-'+selectedForm).is(':checked') && dateDiff[0]>0)
+	if(!worker.isEligibleEarlyNoticeCompensation())
 		return;
 
-	numDays = worker.getNumDaysEarlyNotice(dateDiff, end_date);
+	numDays = worker.getNumDaysEarlyNotice();
 	isMonthEarlyNotice = numDays==-2;
 
 	if(!isMonthEarlyNotice){
