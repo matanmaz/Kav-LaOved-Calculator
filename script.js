@@ -1,4 +1,4 @@
-﻿last_update = "20.6.2015"
+﻿last_update = "29.6.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -335,46 +335,24 @@ function calcRecuper(isFirst){
 }
 
 function calcVacation(isFirst){
+
 	var start_date = getStartDate();
 	var end_date = getEndDate()
 	if(isFirst)
 		if(!isInputValid(start_date, end_date))
 			return;
 	//convert dates to months and years of work
-	dateDiff = getDateDiff(start_date, end_date);
+	var dateDiff = getDateDiff(start_date, end_date);
 
 	//define output table headers
-	headers = [STR.years[LANG], STR.vacation_days_potential[LANG], STR.vacation_days_net[LANG], STR.amount_per_year[LANG]];
+	var headers = [STR.years[LANG], STR.vacation_days_potential[LANG], STR.vacation_days_net[LANG], STR.amount_per_year[LANG]];
 
-	total_value = 0;//running total
-	total_value_without_oldness = 0;//running total
+    var result = worker.getVacationTable();
+	var total_value = result[0];//running total
+	var total_value_without_oldness = result[1];//running total
+	var rows = result[2];
 
-	//start filling the table
-	rows = [];
-
-	vacationDayValue = worker.getVacationDayValue(end_date);
-
-	//this 'for loop' handles whole years
-	//remainder is taken care of later
-	for(i=1;i<=dateDiff[0];i++)
-	{
-		days = worker.getVacationDays(i,12);
-		i_day_value = days * vacationDayValue;
-		total_value_without_oldness += i_day_value;
-		rows[i-1]=[i, worker.getVacationDays(i,12), days, i_day_value];
-		if(dateDiff[0] - i < 3)//oldness calc: include last three years
-		{
-			total_value += rows[i-1][3];
-		}
-	}
-	//if worked part of a year this is the remainder
-	remainder = worker.getVacationDays(i, dateDiff[1]);
-	
-	if(dateDiff[1]>0 && remainder>0){
-		total_value_without_oldness += remainder * vacationDayValue;
-		rows[i-1] = [i, worker.getVacationDays(i,12), remainder, remainder * vacationDayValue];
-		total_value += rows[i-1][3];
-	}
+	var vacationDayValue = worker.getVacationDayValue(end_date);
 
 	//get visual
 	createOutputTable(isFirst, 

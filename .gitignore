@@ -1,4 +1,4 @@
-# Windows image file caches
+﻿# Windows image file caches
 Thumbs.db
 ehthumbs.db
 
@@ -36,3 +36,5 @@ Icon
 .Trashes
 
 ~$ ההרחבה בתחום הניקיון.docx
+.idea/*
+Kav-LaOved-Calculator.iml
