@@ -1,6 +1,6 @@
 ﻿STR = { 	
 	employee_name : ['Worker\'s Name','שם עובד'],
-	type_buttons : [['Cleaning Workers','עובדי נקיון'], ['Caregivers', 'עובדי סיעוד'], ['Hourly Workers', 'עובדים שעתיים'], ['Agricultural Workers','עובדי חקלאות'], ['Monthly Workers','עובדים בשכר חודשי'], ],
+	type_buttons : [['Cleaning Workers','צו הרחבה בניקיון- חברות כח אדם'], ['Caregivers', 'עובדי סיעוד'], ['Hourly Workers', 'עובדים שעתיים'], ['Agricultural Workers','עובדי חקלאות'], ['Monthly Workers','עובדים בשכר חודשי'], ],
 	caretaker_menu : ['Caregivers', 'עובדי סיעוד'],
 	daily_worker_menu : ['Hourly Workers', 'עובדים שעתיים'],
 	agricultural_worker_menu : ['Agricultural Workers','עובדי חקלאות'],
@@ -87,5 +87,6 @@
 	transportationCosts : ['transportation Costs','הוצאות נסיעה'],
 	overtime_pension : ['Pension for Overtime','פנסיה עבור שעות נוספות'],
 	transportationCosts_pension : ['Pension for Transportation Costs','פנסיה עבור הוצאות נסיעה'],
+	expansion_date_label : ['Expansion date:','תאריך צו ההרחבה:'],
 }
 //	 : ['',''],

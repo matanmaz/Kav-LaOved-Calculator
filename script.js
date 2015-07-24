@@ -57,6 +57,11 @@ function addInputToForms(affected, label, type, id, defaultValue, onClickAction,
 	forms.map(function(form) { if(affected.indexOf(form.id)!=-1) form.addInput(label, type, id, defaultValue, onClickAction, other);});
 }
 
+function updateCleaningEmployeeExpansionDateLabel() {
+	var updatedDate = getExpansionDate(""+$('#formElement25-'+selectedForm+':checked').val())
+	$('#cleaningEmployeeExpansionDateLabel')[0].innerHTML = updatedDate.toLocaleDateString();
+}
+
 function initPage() {
 
 	//initialization
@@ -80,11 +85,14 @@ function initPage() {
 	}
 	//Cleaning Employee Type
 	formElement25 = "<tr id='formElementRow25-%d'><td>"+STR.cleaning_type[LANG] + ":</td><td>" 
-		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='1' checked='checked'/>" + STR.cleaning_private[LANG] 
-		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='2'/>" + STR.cleaning_public[LANG] 
-		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' value='3'/>" + STR.cleaning_hotel[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' onClick='updateCleaningEmployeeExpansionDateLabel()' value='1' checked='checked'/>" + STR.cleaning_private[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' onClick='updateCleaningEmployeeExpansionDateLabel()' value='2'/>" + STR.cleaning_public[LANG] 
+		+ "<input type='radio' id='formElement25-%d' name='cleaning_type' onClick='updateCleaningEmployeeExpansionDateLabel()' value='3'/>" + STR.cleaning_hotel[LANG] 
+		+ "</td><td>%s<label id='cleaningEmployeeExpansionDateLabel'>%s</label>";
 		+ "</td></tr>";
-    $("#form"+CLEANING_WORKER_FORM).append(sprintf(formElement25,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM));
+    $("#form"+CLEANING_WORKER_FORM).append(sprintf(formElement25,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,
+    		STR.expansion_date_label[LANG], getExpansionDate(C_PRIVATE).toLocaleDateString()));
+
 	//Employee Name
 	addInputToAllForms(STR.employee_name[LANG], "text", 1, "");
 	//Employer Name

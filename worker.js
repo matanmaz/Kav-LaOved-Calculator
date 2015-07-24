@@ -597,14 +597,7 @@ CleaningWorker.prototype = {
   },
 
   getExpansionDate: function() {
-	switch(this.cleaningType){
-	  case C_PRIVATE:
-		return new Date("3-1-2014");
-	  case C_PUBLIC　:
-		return new Date("11-1-2013");
-	  case C_HOTEL　:
-		return new Date("7-1-2014");
-	}
+  	return getExpansionDate(this.cleaningType);
   },
 
   getRecuperationValue: function(date){
@@ -716,3 +709,14 @@ CleaningWorker.prototype = {
   },
 }
 extend(Worker, CleaningWorker);
+
+function getExpansionDate(cleaningType) {
+  switch(cleaningType){
+    case C_PRIVATE:
+    return new Date("3-1-2014");
+    case C_PUBLIC　:
+    return new Date("11-1-2013");
+    case C_HOTEL　:
+    return new Date("7-1-2014");
+  }
+}
