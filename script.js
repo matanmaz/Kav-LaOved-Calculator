@@ -230,6 +230,10 @@ function getItem(array, index) {
     return array[index];
 }
 
+function getYearNum(startWorkDate, date) {
+	return Math.floor(getMonthsDiff(startWorkDate, date)/12.0);
+}
+
 function isUndefined(variable) {
 	//utility
 	return variable == undefined || variable == "";

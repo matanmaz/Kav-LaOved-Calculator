@@ -212,7 +212,6 @@ Worker.prototype = {
 		//round down days that are less than 90%
 
 		var days = partial * this.getVacationDays(running_date) / 12.0;
-		days = roundVacationDays(days);
 		var ivacation_value = partial * days * this.getVacationDayValue(running_date);
 		//update totals
 		vacation_total_without_oldness += ivacation_value;
@@ -233,7 +232,9 @@ Worker.prototype = {
           yearsDaysTotal += vacationValues[j][0];
           yearsVacationTotal += vacationValues[j][1];
         }
-        //TODO: may need to deal with rounding
+        var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
+		var roundRatio = r_yearsDaysTotal / yearsDaysTotal;
+		var r_yearsVacationTotal = roundRatio * yearsVacationTotal;
         rows[i]=[i, this.getVacationDays(running_date), yearsDaysTotal, yearsVacationTotal];
 	  }
 	  return [vacation_total, vacation_total_without_oldness, rows];
@@ -268,8 +269,8 @@ Worker.prototype = {
 	var periodPensionData = getPensionData(date);
 	return periodPensionData[PENSION_P];
   },
-
-	getMonthWage: function (date) {
+  
+  getMonthWage: function (date) {
 		return getMinMonthWage(date);
 	},
 
@@ -385,22 +386,14 @@ HourlyWorker.prototype = {
 	return hours / HOURS_IN_WEEK;
   },
 
-  getVacationDays: function(year, months){
-	year = year - 1;
-	fiveDayWeekVacation = getItem(five_day_week_vacations, year);
-
+  getVacationDays: function(date){
+	var year = getDateDiff(this.startWorkDate,date)[0];
 	if(this.daysPerWeek>=1)
 	{
-	  lastYearInTable = x_day_week_vacations[this.daysPerWeek-1].length;
-	  xDayWeekVacation = getItem(x_day_week_vacations[this.daysPerWeek-1], year);
+	  return getItem(x_day_week_vacations[this.daysPerWeek-1], year);
 	}
-
-	if(this.daysPerWeek>=1)
-	  vacation_days = xDayWeekVacation*months/12;
-	else if(months==12)
-	  vacation_days = fiveDayWeekVacation * this.daysPerWeek * 52 / 200;
-	else vacation_days = fiveDayWeekVacation * this.daysPerWeek * months * WEEKS_IN_MONTH / 240;
-	return this.roundVacationDays(vacation_days);
+	else
+		return 0;
   },
 
   getNumWorkDaysInMonth: function(){
@@ -434,7 +427,7 @@ HourlyWorker.prototype = {
   },
 
   getDayWage: function (date) {
-	var month_value = getMonthWage (date);
+	var month_value = this.getMonthWage (date);
 	return month_value / this.daysPerWeek / WEEKS_IN_MONTH;
   },
 }
@@ -481,20 +474,20 @@ AgriculturalWorker.prototype = {
 	return partial*recuperation_days_agr;
   },
 
-  getVacationDays: function (year, months) {
-	year = year - 1;
-	var vacation_days = getItem(agr_vacations, year)*months/12;
-	return this.roundVacationDays(vacation_days);
+  getVacationDays: function (date) {
+	var year = getDateDiff(this.startWorkDate,date)[0];
+	return getItem(agr_vacations, year);
   },
 
   getMonthWage: function (date) {
 	//first get the input wage by using 0 as minimum wage
-	var monthWage = this.monthlyWage;
+	var minMonthValue = MonthlyWorker.prototype.getMonthWage.call(this, date);
+	//agr addition to min wage
+	minMonthValue += getItem(agr_min_wage_bonus, getYearNum(this.startWorkDate, date));
+	var inputMonthWage = this.monthlyWage;
+	var monthWage = Math.max(inputMonthWage, minMonthValue);
 	//add pocket money
 	monthWage += this.allowance * WEEKS_IN_MONTH;
-	//agr addition to min wage
-	minMonthValue += getItem(agr_min_wage_bonus, date);
-	monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
 	return monthWage;
   },
 
