@@ -1,4 +1,4 @@
-﻿last_update = "29.6.2015"
+﻿last_update = "1.8.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -125,7 +125,7 @@ function initPage() {
 	//Hours in a Week
 	addInputToForms([DAILY_WORKER_FORM], STR.num_hours_in_week[LANG], "number", 9, "0");
 	//Five Day Week?
-	addInputToForms([MONTHLHY_WORKER_FORM], STR.five_day_week[LANG], "checkbox", 19, "");
+	addInputToForms([CLEANING_WORKER_FORM,MONTHLHY_WORKER_FORM], STR.five_day_week[LANG], "checkbox", 19, "");
 	//Eligible for Compensation?
 	addInputToForms([CLEANING_WORKER_FORM, DAILY_WORKER_FORM, CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM],STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
 	//Show Eligibility Details?
@@ -177,7 +177,7 @@ function main(funcs) {
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
 			worker = new CleaningWorker(getStartDate(), getEndDate(), isSep, work_percentage, hour_value, cleaning_type, 
-				transportationCosts, overtime125, overtime150);
+				transportationCosts, overtime125, overtime150, five_day_week);
 			break;
 		case CARETAKER_FORM:
 			worker = new Caretaker(getStartDate(), getEndDate(), isSep, month_value, allowance);
@@ -270,13 +270,13 @@ function isInputValid(startDate, endDate){
 }
 
 function getEndDate() {
-	var end_date = new Date($("#formElement3-"+selectedForm).val());
+	var end_date = new Date($("#formElement3-"+selectedForm).val() + " 00:00:00");
 	return end_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
 }
 
 function getStartDate() {
-	var start_date = new Date($("#formElement2-"+selectedForm).val());
+	var start_date = new Date($("#formElement2-"+selectedForm).val() + " 00:00:00");
 	return start_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
 }
@@ -390,29 +390,16 @@ function calcPension(isFirst){
 			return;
 	var sep_elig = worker.isEligibleToSeperation;
 	var sep_elig_show_details = sep_elig && $('#formElement24-'+selectedForm).is(':checked');
-	var hishtalmut = worker.hasHishtalmut(end_date);
 	//define output table headers
 	
 	//different columns depending on separation stuff:
 	if(sep_elig && (!sep_elig_show_details) ){
-		if(hishtalmut){
-			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_hishtalmut[LANG], STR.subtotal_period[LANG]];
-			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
-		}
-		else{
-			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_period[LANG]];
-			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
-		}
+		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_period[LANG]];
+		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
 	}
 	else {
-		if(hishtalmut){
-			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_hishtalmut[LANG], STR.subtotal_period[LANG]];
-			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f','%.2f']
-		}
-		else{
-			headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
-			printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
-		}
+		headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_pension[LANG], STR.subtotal_separation[LANG], STR.subtotal_period[LANG]];
+		printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f','%.2f']
 	}
 
 	var result = worker.getPensionTable(sep_elig_show_details);
@@ -437,6 +424,39 @@ function calcPension(isFirst){
 	sepPayTotal = 0
 	if(sep_elig && sep_elig_show_details){
 		sepPayTotal = total_value / 2;
+	}
+	
+	if(null != worker.getHishtalmutEligibleDay()) {
+		calcHishtalmut(false);
+	}
+}
+
+function calcHishtalmut(isFirst){
+	var start_date = getStartDate();
+	var end_date = getEndDate()
+	if(isFirst)
+		if(!isInputValid(start_date, end_date))
+			return;
+	//define output table headers
+	headers = [STR.period[LANG], STR.num_months[LANG], STR.base_salary_for_calc[LANG], STR.percentages[LANG], STR.subtotal_period[LANG]];
+	printFormat = ['%s','%.2f','%.2f','%s','%.2f','%.2f']
+
+	var result = worker.getHishtalmutTable();
+	var total_value = result[0];
+	var rows = result[1];
+	var bottom_lines = result[2];
+
+	//get visual	
+	createOutputTable(isFirst, 
+		"<u>" + STR.output_hishtalmut[LANG] + "</u>", 
+		start_date,
+		end_date, 
+		headers, 
+		rows, 
+		printFormat);
+	output = $("#div_output");
+	for(line in bottom_lines){
+		output_body.append(bottom_lines[line]);
 	}
 }
 
@@ -534,7 +554,7 @@ function calcEarly (isFirst) {
 
 		runningDate.setDate(runningDate.getDate()+1);
 		workDays = 0;
-		num_days_in_week = getNumDaysInWeek();
+		num_days_in_week = worker.getWorkDaysPerWeek();
 		while(numDays>0) {
 			if(numDays<1)
 				workDays+=numDays;
@@ -568,19 +588,6 @@ function calcEarly (isFirst) {
 		}
 		table.append(sprintf("<tr><td>%s:</td><td><b>%.2f</b></td></tr>",
 				STR.compen_label4[LANG], earlyPay));
-	}
-}
-
-function getNumDaysInWeek () {
-	if(selectedForm == CARETAKER_FORM || selectedForm == AGRICULTURAL_WORKER_FORM)
-		return 6;
-	if(selectedForm == DAILY_WORKER_FORM)
-		return $('#formElement8-2').val();
-	if(selectedForm == MONTHLHY_WORKER_FORM){
-		if($('#formElement19-4').is(':checked'))
-			return 5;
-		else
-			return 6;
 	}
 }
 
@@ -749,9 +756,9 @@ function getDateDiff(startDate, endDate) {
 	months = monthB-monthA;	
 	if(dayB<dayA){
 		months-=1;
-		dayB += getNumDaysInMonth(dateB.getFullYear(), monthB+1);//TOTAL_DAYS_IN_MONTH;
+		dayB += getNumDaysInMonth(dateB.getFullYear(), monthB-1);//TOTAL_DAYS_IN_MONTH;
 	}
-	months += (dayB-dayA)/getNumDaysInMonth(dateB.getFullYear(), monthB+1);
+	months += (dayB-dayA)/getNumDaysInMonth(dateB.getFullYear(), monthB-1);
 
 	return [years, months];
 }
@@ -781,4 +788,36 @@ function printOutput() {
  	$('#div_main').show();
     $('#div_form').show();
     $('#hr_divide').show();
+}
+
+function roundVacationDays(vacation_days){
+	//the lawyers decided that if a worker earned 90% of their day they deserve it
+	if(vacation_days - Math.floor(vacation_days) >= 0.9)
+	  return Math.floor(vacation_days)+1;
+	else
+	  return Math.floor(vacation_days);
+}
+
+function emulateTime(startDate, endDate, initRunningDate, isPeriodOver, calcPeriodRow, incrementRunningDate) {
+	var rows = [];
+	var staticVars = []
+	var runningDate = initRunningDate(startDate, staticVars);
+	if(runningDate == null)
+		return;
+	var periodStart = new Date(runningDate);
+	var periodEnd;
+	
+	while(runningDate<endDate){
+		if(isPeriodOver(periodStart, runningDate)) {
+			periodEnd = new Date(runningDate);
+			periodEnd.setDate(runningDate.getDate()-1);
+			rows.push(calcPeriodRow(periodStart, periodEnd, staticVars))
+			periodStart = new Date(runningDate);
+		}
+		
+		runningDate = incrementRunningDate(runningDate);
+	}
+	periodEnd = new Date(runningDate);
+	rows.push(calcPeriodRow(periodStart, periodEnd, staticVars))
+	return [rows, staticVars];
 }

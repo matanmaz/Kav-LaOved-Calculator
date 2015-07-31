@@ -35,6 +35,7 @@
 	output_vacation : ['Vacation','חישוב חופשה'],
 	output_pension : ['Pension','חישוב פנסיה'],
 	output_holidays: ['Holidays','חישוב חגים'],
+	output_hishtalmut: ['Hishtalmut','חישוב השתלמות'],
 	output_compen : ['Severance Pay','פיצויי פיטורין'],
 	output_compen_complement : ['Full Severance Pay Complement','השלמה לפיצויי פיטורין מלאים'],
 	output_compen_less_than_year : ['Worker has not worked a full year','לא הושלמה שנת עבודה'],
