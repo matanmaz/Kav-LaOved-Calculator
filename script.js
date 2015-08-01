@@ -611,6 +611,8 @@ function getNumWorkDaysInMonth () {
 function getMonthsDiff (startDate, endDate) {
 	//utility
 	periodDateDiff = getDateDiff(startDate, endDate);
+	if(periodDateDiff == null)
+		alert(1);
 	return periodDateDiff[0]*12+periodDateDiff[1];
 }
 

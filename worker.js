@@ -333,7 +333,7 @@ Worker.prototype = {
 	return numDays;
   },
 
-  getDayWage: function (minMonthValue, date) {
+  getDayWage: function (date) {
 	var month_value = this.getMonthWage (date);
 
 	if(this.daysPerWeek == 6)
@@ -467,7 +467,7 @@ function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, 
 }
 
 AgriculturalWorker.prototype = {
-  getRecuperationDays: function (year, ignorePartial) {
+  getRecuperationDays: function (date, ignorePartial) {
 	var partial = this.getPartTimeFraction();
 	if(ignorePartial)
 	  partial = 1;
