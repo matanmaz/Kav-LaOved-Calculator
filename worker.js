@@ -189,7 +189,7 @@ Worker.prototype = {
 		yearsDaysTotal += recuperationValues[j][0];
 		yearsRecuperationTotal += recuperationValues[j][1];
 	  }
-	  rows[i]=[i, this.getRecuperationDays(running_date, true), yearsDaysTotal, yearsRecuperationTotal];
+	  rows[i]=[i+1, this.getRecuperationDays(running_date, true), yearsDaysTotal, yearsRecuperationTotal];
 
 	}
 	return [this.getRecuperationValue(this.endWorkDate), recuperation_total, recuperation_total_without_oldness, rows];
@@ -235,7 +235,7 @@ Worker.prototype = {
         var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
 		var roundRatio = r_yearsDaysTotal / yearsDaysTotal;
 		var r_yearsVacationTotal = roundRatio * yearsVacationTotal;
-        rows[i]=[i, this.getVacationDays(running_date), yearsDaysTotal, yearsVacationTotal];
+        rows[i]=[i+1, this.getVacationDays(running_date), yearsDaysTotal, yearsVacationTotal];
 	  }
 	  return [vacation_total, vacation_total_without_oldness, rows];
 	},
