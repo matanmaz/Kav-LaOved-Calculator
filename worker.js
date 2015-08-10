@@ -16,7 +16,7 @@ Worker.prototype = {
   },
 
   isEligibleEarlyNoticeCompensation: function(){
-	return true;
+	return this.isEligibleToSeperation;
   },
 
   isEligibleToSeparationCompensation: function(){
@@ -197,47 +197,40 @@ Worker.prototype = {
 
   getVacationTable: function() {
 	  var rows = [];
-	  var vacationValues = [];
+	  var vacationDayList = [];
 
-	  var vacation_total = 0;//running total
-	  var vacation_total_without_oldness = 0;
+	  var vacation_days = 0;//running total
+	  var vacation_days_without_oldness = 0;
 
 	  var running_date = new Date(this.startWorkDate);
+    var vacationDayValue = this.getVacationDayValue(this.endWorkDate);
 	  //loop on all of the time of work
 	  while(running_date <= this.endWorkDate)
 	  {
 	    //is this a partial month?
 	    var partial = (this.endWorkDate-running_date)/TIME_IN_MONTH;
 	    partial = partial > 1 ? partial = 1 : partial;
-		//round down days that are less than 90%
-
-		var days = partial * this.getVacationDays(running_date) / 12.0;
-		var ivacation_value = partial * days * this.getVacationDayValue(running_date);
-		//update totals
-		vacation_total_without_oldness += ivacation_value;
-		if((this.endWorkDate-running_date)/TIME_IN_MONTH < 3*12) //only include last three years
-		{
-            vacation_total += ivacation_value;
-        }
-		vacationValues.push([days, ivacation_value]);
-		//increment date by a month
-		running_date.setMonth(running_date.getMonth()+1);
+  		var days = partial * this.getVacationDays(running_date) / 12.0;
+  		vacationDayList.push([days]);
+  		//increment date by a month
+  		running_date.setMonth(running_date.getMonth()+1);
 	  }
-	  //sum up each year's months
-	  for(i=0; i<vacationValues.length/12;i++){
-        var yearsDaysTotal = 0;
-        var yearsVacationTotal = 0;
-        var running_date = (new Date(this.startWorkDate)).setYear(this.startWorkDate.getUTCFullYear()+i);
-        for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1]; j++){
-          yearsDaysTotal += vacationValues[j][0];
-          yearsVacationTotal += vacationValues[j][1];
-        }
-        var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
-		var roundRatio = r_yearsDaysTotal / yearsDaysTotal;
-		var r_yearsVacationTotal = roundRatio * yearsVacationTotal;
-        rows[i]=[i+1, this.getVacationDays(running_date), yearsDaysTotal, yearsVacationTotal];
+  	//sum up each year's months
+	  for(i=0; i<vacationDayList.length/12;i++){
+      var yearsDaysTotal = 0;
+      var running_date = (new Date(this.startWorkDate)).setYear(this.startWorkDate.getUTCFullYear()+i);
+      for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1]; j++){
+        yearsDaysTotal += vacationDayList[j][0];
+        if(j+36 >= vacationDayList.length)
+          vacation_days+=vacationDayList[j][0];
+      }
+      var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
+  		var r_yearsVacationTotal = r_yearsDaysTotal * vacationDayValue;
+      vacation_days_without_oldness += r_yearsDaysTotal;
+      rows[i]=[i+1, this.getVacationDays(running_date), yearsDaysTotal, r_yearsVacationTotal];
 	  }
-	  return [vacation_total, vacation_total_without_oldness, rows];
+    vacation_days = roundVacationDays(vacation_days);
+	  return [vacation_days*vacationDayValue, vacation_days_without_oldness*vacationDayValue, rows];
 	},
 
   isEligibleToRecuperation: function(date) {
