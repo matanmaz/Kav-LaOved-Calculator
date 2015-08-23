@@ -235,7 +235,7 @@ Worker.prototype = {
 
   isEligibleToRecuperation: function(date) {
 	var yearAfterStart = new Date(this.startWorkDate);
-	yearAfterStart.setYear(yearAfterStart.getUTCFullYear()+1);
+	yearAfterStart = addMonth(yearAfterStart,12);
 	yearAfterStart.setDate(yearAfterStart.getDate()-1);
 	return this.endWorkDate>=yearAfterStart;
   },
