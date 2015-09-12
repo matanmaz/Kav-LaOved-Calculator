@@ -227,7 +227,7 @@ Worker.prototype = {
       var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
   		var r_yearsVacationTotal = r_yearsDaysTotal * vacationDayValue;
       vacation_days_without_oldness += r_yearsDaysTotal;
-      rows[i]=[i+1, this.getVacationDays(running_date), yearsDaysTotal, r_yearsVacationTotal];
+      rows[i]=[i+1, this.getVacationDays(running_date), r_yearsDaysTotal, r_yearsVacationTotal];
 	  }
     vacation_days = roundVacationDays(vacation_days);
 	  return [vacation_days*vacationDayValue, vacation_days_without_oldness*vacationDayValue, rows];
