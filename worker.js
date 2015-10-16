@@ -46,7 +46,6 @@ Worker.prototype = {
 	var periodPensionTotal = 0;
 	var periodCompensationTotal = 0;
 	var periodTotal = 0;
-	
 	var period = getMonthsDiff(periodStart, periodEnd);
 	
 	//waiting for pension
@@ -518,9 +517,9 @@ Caretaker.prototype = {
   getMonthWage: function (date) {
 	  //first get the input wage by using 0 as minimum wage
 	var monthWage = this.monthlyWage;
+	monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
 	//add pocket money
 	monthWage += this.allowance * WEEKS_IN_MONTH;
-	monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
 	return monthWage;
 	},
 }
