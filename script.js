@@ -551,6 +551,8 @@ function calcEarly (isFirst) {
 		return;
 
 	numDays = worker.getNumDaysEarlyNotice();
+	//round to match display
+	numDays = numDays.toFixed(1);
 	isMonthEarlyNotice = numDays==-2;
 
 	if(!isMonthEarlyNotice){
