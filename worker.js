@@ -179,16 +179,19 @@ Worker.prototype = {
 	var running_date = new Date(this.startWorkDate);
 	while(running_date <= this.endWorkDate)
 	{
-	  var days = this.getRecuperationDays(running_date) / 12.0;
+	  var idays = this.getRecuperationDays(running_date) / 12.0;
 	  var irecuperation_value = 0;
-	  if(this.isEligibleToRecuperation(running_date))
-		 irecuperation_value = days * this.getRecuperationValue(running_date);
+	  if(this.isEligibleToRecuperation(running_date)){
+		 irecuperation_value = idays * this.getRecuperationValue(running_date);
+	  }
+	  else
+	  	idays = 0;
 	  recuperation_total_without_oldness += irecuperation_value;
 	  if((this.endWorkDate-running_date)/TIME_IN_MONTH < 2*12)//oldness calc: include last two years
       {
         recuperation_total += irecuperation_value;
       }
-	  recuperationValues.push([days, irecuperation_value]);
+	  recuperationValues.push([idays, irecuperation_value]);
 
 	  //increment date by a month
 	  running_date.setMonth(running_date.getMonth()+1);
