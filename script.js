@@ -411,9 +411,10 @@ function calcPension(isFirst){
 	var rows = result[1];
 	var bottom_lines = result[2];
 
-	//get visual	
+	//get visual
+	var pensionExpl = (worker.getPensionWaiting(worker.startWorkDate)==6) ? STR.output_pension_expl[LANG] : "";
 	createOutputTable(isFirst, 
-		"</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG] + "</u> " + STR.output_pension_expl[LANG], 
+		"</u>" + STR.pension_statement[LANG] + "<br/><u>" + STR.output_pension[LANG] + "</u> " + pensionExpl, 
 		start_date,
 		end_date, 
 		headers, 
