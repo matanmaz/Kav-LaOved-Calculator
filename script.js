@@ -576,7 +576,7 @@ function calcEarly (isFirst) {
 		earlyPay = worker.getMonthWage(end_date);
 	}
 	output_table_id = createOutputTable(isFirst, 
-		STR.output_early[LANG], 
+		sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_early[LANG], STR.early_days[LANG], worker.getDayWage(end_date)), 
 		start_date, 
 		end_date,
 		[], [], []);
