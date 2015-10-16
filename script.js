@@ -1,4 +1,4 @@
-﻿last_update = "1.8.2015"
+﻿last_update = "16.10.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -612,17 +612,6 @@ function getMonthsDiff (startDate, endDate) {
 	//utility
 	periodDateDiff = getDateDiff(startDate, endDate);
 	return periodDateDiff[0]*12+periodDateDiff[1];
-}
-
-function getPensionWaiting (date) {
-	//utility
-	i=0;
-	var pension_waiting = pension_waiting_data[0][1];
-	while(i < pension_waiting_data.length && date >= pension_waiting_data[i][0]){
-		pension_waiting = pension_waiting_data[i][1];
-		i++;
-	}
-	return pension_waiting;
 }
 
 function dateToString (date, format) {

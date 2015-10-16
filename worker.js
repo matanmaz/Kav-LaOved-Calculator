@@ -16,7 +16,9 @@ Worker.prototype = {
   },
 
   isEligibleEarlyNoticeCompensation: function(){
-	return this.isEligibleToSeperation;
+  	//A worker is eligible if he worked less than a year (if he wasn't fired)
+  	//OR if he is eligible for pitzuyim
+	return this.isEligibleToSeperation || this.dateDiff[0]<1;
   },
 
   isEligibleToSeparationCompensation: function(){
@@ -56,7 +58,7 @@ Worker.prototype = {
 		}
 		staticVars['months_waited'] += partial;
 		//has the worker waited enough time to get pension?
-		var pastWaiting = staticVars['months_waited'] - getPensionWaiting(addMonth(periodStart,i));
+		var pastWaiting = staticVars['months_waited'] - this.getPensionWaiting(addMonth(periodStart,i));
 		if(!staticVars['doneWaiting'] && pastWaiting>0) {
 		  staticVars['doneWaiting'] = true;
 		  if(pastWaiting < 1)
@@ -111,6 +113,17 @@ Worker.prototype = {
 	var staticVars = result[1];
 	var bottom_lines = this.getPensionBottomLine(staticVars['total_value'], isEligibleToSeparationShowing);
 	return [staticVars['total_value'], rows, bottom_lines];
+  },
+
+  getPensionWaiting: function (date) {
+	//Lookup how much time a worker must wait for pension
+	i=0;
+	var pension_waiting = pension_waiting_data[0][1];
+	while(i < pension_waiting_data.length && date >= pension_waiting_data[i][0]){
+		pension_waiting = pension_waiting_data[i][1];
+		i++;
+	}
+	return pension_waiting;
   },
 
   getHishtalmutTable: function() {
@@ -366,6 +379,8 @@ function HourlyWorker(startWorkDate, endWorkDate, isEligibleToSeperation, dailyW
 	Worker.call(this, startWorkDate, endWorkDate, isEligibleToSeperation);
 	this.daysPerWeek = daysPerWeek ? 1*daysPerWeek : 0;
 	this.hoursPerWeek = hoursPerWeek ? 1*hoursPerWeek : 0;
+	if(this.hoursPerWeek == 0)
+		alert(STR.alert_no_hours_in_week[LANG]);
 	this.dailyWage = dailyWage ? 1*dailyWage : 0;
 }
 
@@ -374,8 +389,6 @@ HourlyWorker.prototype = {
   getPartTimeFraction: function() {
 	hours = this.hoursPerWeek;
 	hours = hours > HOURS_IN_WEEK ? HOURS_IN_WEEK : hours;
-	if(!hours)
-	  alert(STR.alert_no_hours_in_week[LANG]);
 	return hours / HOURS_IN_WEEK;
   },
 
@@ -460,6 +473,10 @@ function AgriculturalWorker(startWorkDate, endWorkDate, isEligibleToSeperation, 
 }
 
 AgriculturalWorker.prototype = {
+  getPensionWaiting: function (date) {
+  	return 0;
+  },
+
   getRecuperationDays: function (date, ignorePartial) {
 	var partial = this.getPartTimeFraction();
 	if(ignorePartial)
