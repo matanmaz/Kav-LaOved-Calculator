@@ -553,7 +553,7 @@ function calcEarly (isFirst) {
 
 	numDays = worker.getNumDaysEarlyNotice();
 	//round to match display
-	numDays = numDays.toFixed(1);
+	numDays = parseFloat(numDays.toFixed(1));
 	isMonthEarlyNotice = numDays==-2;
 
 	if(!isMonthEarlyNotice){
@@ -731,12 +731,30 @@ function getDateDiff(startDate, endDate) {
 	//calculates B - A
 	var dateA = new Date(startDate);
 	var dateB = new Date(endDate);
-	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
 	{
 		alert(STR.alert_no_dates[LANG]);
 		return;
 	}
+	dateB = new Date(dateB.setDate(dateB.getDate()+1));
+	var diff = dateB - dateA;
+	years = Math.floor(diff / (365*MILI_IN_DAY));
+	diff -= years * (365.25*MILI_IN_DAY);
+	diff = diff<0 ? 0 : diff;
+	months = diff / (MILI_IN_DAY*(TOTAL_DAYS_IN_MONTH+0.5));
+	return [years, months];
+}
+function getDateDiff2(startDate, endDate) {
+	//utility
+	//calculates B - A
+	var dateA = new Date(startDate);
+	var dateB = new Date(endDate);
+	if(dateA == "Invalid Date" || dateB == "Invalid Date")
+	{
+		alert(STR.alert_no_dates[LANG]);
+		return;
+	}
+	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	yearA = dateA.getYear();
 	yearB = dateB.getYear();
 	monthA = dateA.getMonth();
@@ -744,7 +762,7 @@ function getDateDiff(startDate, endDate) {
 	dayA = dateA.getDate();
 	dayB = dateB.getDate();
 	years = yearB - yearA;
-	if(monthB<monthA || (monthB==monthA && dayA>dayB))
+	if(monthB<monthA || (monthB==monthA && dayB<dayA))
 	{
 		monthB+=12;
 		years--;

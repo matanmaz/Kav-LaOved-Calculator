@@ -71,7 +71,7 @@ Worker.prototype = {
 
 		period--;
 	}
-	
+	num_months = parseFloat(num_months.toFixed(1));
 	//calculate the period totals using the number of months that count
 	periodPensionTotal += this.getPeriodPensionTotal(periodStart, num_months);
 	periodCompensationTotal += this.getPeriodCompensationTotal(periodStart, num_months);
