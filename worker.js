@@ -179,10 +179,12 @@ Worker.prototype = {
 	var running_date = new Date(this.startWorkDate);
 	while(running_date <= this.endWorkDate)
 	{
-	  var idays = this.getRecuperationDays(running_date) / 12.0;
 	  var irecuperation_value = 0;
+	  var partial = (this.endWorkDate - running_date) / (AVERAGE_TIME_IN_MONTH);
+	  partial = Math.min(partial, 1); 
+	  var idays = partial * this.getRecuperationDays(running_date) / 12.0;
 	  if(this.isEligibleToRecuperation(running_date)){
-		 irecuperation_value = idays * this.getRecuperationValue(running_date);
+		 irecuperation_value =idays * this.getRecuperationValue(running_date);
 	  }
 	  else
 	  	idays = 0;
@@ -517,13 +519,15 @@ function Caretaker(startWorkDate, endWorkDate, isEligibleToSeperation, monthlyWa
 }
 
 Caretaker.prototype = {
-  getMonthWage: function (date) {
-	  //first get the input wage by using 0 as minimum wage
-	var monthWage = this.monthlyWage;
-	monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
-	//add pocket money
-	monthWage += this.allowance * WEEKS_IN_MONTH;
-	return monthWage;
+	getMonthWage: function (date) {
+		  //first get the input wage by using 0 as minimum wage
+		var monthWage = this.monthlyWage;
+		var min_monthWage = MonthlyWorker.prototype.getMonthWage.call(this, date);
+
+		//add pocket money
+		monthWage += this.allowance * WEEKS_IN_MONTH;
+		monthWage = Math.max(monthWage, min_monthWage);
+		return monthWage;
 	},
 }
 extend(MonthlyWorker, Caretaker);
