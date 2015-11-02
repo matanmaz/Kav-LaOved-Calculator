@@ -398,10 +398,14 @@ HourlyWorker.prototype = {
 
   getVacationDays: function(date){
 	var year = getDateDiff(this.startWorkDate,date)[0];
-	if(this.daysPerWeek>=1)
+	if(this.daysPerWeek>1)
 	{
 	  return getItem(x_day_week_vacations[this.daysPerWeek-1], year);
 	}
+	else if(this.daysPerWeek>0)
+	{
+	  return this.daysPerWeek * getItem(x_day_week_vacations[0], year);
+	}	
 	else
 		return 0;
   },
