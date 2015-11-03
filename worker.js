@@ -300,7 +300,7 @@ Worker.prototype = {
   },
 
   getRecuperationDays: function(date, ignorePartial) {
-	var year = getDateDiff(this.startWorkDate,date)[0];
+	var year = getYearsDiff(this.startWorkDate,date);
 	var partial = this.getPartTimeFraction();
 	if(ignorePartial)
 	  partial = 1;
@@ -313,7 +313,7 @@ Worker.prototype = {
   },
 
   getVacationDays: function (date) {
-    var year = getDateDiff(this.startWorkDate,date)[0];
+  	var year = getYearsDiff(this.startWorkDate,date);
 	fiveDayWeekVacation = getItem(five_day_week_vacations, year);
 	sixDayWeekVacation = getItem(six_day_week_vacations, year);
 
@@ -397,7 +397,7 @@ HourlyWorker.prototype = {
   },
 
   getVacationDays: function(date){
-	var year = getDateDiff(this.startWorkDate,date)[0];
+  	var year = getYearsDiff(this.startWorkDate,date);
 	if(this.daysPerWeek>1)
 	{
 	  return getItem(x_day_week_vacations[this.daysPerWeek-1], year);
@@ -493,7 +493,7 @@ AgriculturalWorker.prototype = {
   },
 
   getVacationDays: function (date) {
-	var year = getDateDiff(this.startWorkDate,date)[0];
+  	var year = getYearsDiff(this.startWorkDate,date);
 	return getItem(agr_vacations, year);
   },
 
@@ -681,7 +681,7 @@ CleaningWorker.prototype = {
 
   getRecuperationDays: function(date, ignorePartial) {
 	if(date >= this.getExpansionDate()){
-	  var year = getDateDiff(this.startWorkDate,date)[0];
+	  var year = getYearsDiff(this.startWorkDate,date);
 	  var partial = this.getPartTimeFraction();
 	  if(ignorePartial)
 		partial = 1;
@@ -700,7 +700,7 @@ CleaningWorker.prototype = {
 
   getVacationDays: function (date) {
 	if(date >= this.getExpansionDate()){
-		var year = getDateDiff(this.startWorkDate,date)[0];
+		var year = getYearsDiff(this.startWorkDate,date);
 		return getItem(cleaning_vacations_six, year);
 	  }
 	else

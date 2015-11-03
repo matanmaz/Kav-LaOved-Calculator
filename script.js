@@ -738,11 +738,38 @@ function getDateDiff(startDate, endDate) {
 	}
 	dateB = new Date(dateB.setDate(dateB.getDate()+1));
 	var diff = dateB - dateA;
-	years = Math.floor(diff / (365*MILI_IN_DAY));
-	diff -= years * (365.25*MILI_IN_DAY);
+	var years = Math.floor(diff / (365*MILI_IN_DAY));
+	diff -= years * (365*MILI_IN_DAY);
+	var leapDays = Math.floor(years / 4);
+	diff -= leapDays*MILI_IN_DAY;
 	diff = diff<0 ? 0 : diff;
-	months = diff / (MILI_IN_DAY*(TOTAL_DAYS_IN_MONTH+0.5));
+	var months = 0;
+	var runningDate = new Date(dateA);
+	while(diff > 0){
+		var milisThisMonth = (MILI_IN_DAY*daysInMonth(runningDate.getMonth()+1, runningDate.getUTCFullYear()))
+		months += Math.min(1, diff / milisThisMonth);
+		diff -= milisThisMonth;
+		runningDate = addMonth(runningDate, 1);
+	}
+	//months = diff / (MILI_IN_DAY*(TOTAL_DAYS_IN_MONTH+0.5));
 	return [years, months];
+}
+function getYearsDiff(startDate, endDate) {
+	//utility
+	//calculates B - A
+	var dateA = new Date(startDate);
+	var dateB = new Date(endDate);
+	if(dateA == "Invalid Date" || dateB == "Invalid Date")
+	{
+		alert(STR.alert_no_dates[LANG]);
+		return;
+	}
+	dateB = new Date(dateB.setDate(dateB.getDate()+1));
+	var diff = dateB - dateA;
+	return Math.floor(diff / (365*MILI_IN_DAY));
+}
+function daysInMonth(month,year) {
+    return new Date(year, month, 0).getDate();
 }
 function getDateDiff2(startDate, endDate) {
 	//utility
