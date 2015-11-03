@@ -1,4 +1,4 @@
-﻿last_update = "2.11.2015"
+﻿last_update = "3.11.2015"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -651,7 +651,7 @@ function addDay (date, days) {
 	return newDate;
 }
 
-tableId = 0;
+var tableId = 0;
 
 function createOutputTable(isFirst, title, startDate, endDate, headers, rows, formats){
 	employee_name = $('#formElement1-'+selectedForm).val();

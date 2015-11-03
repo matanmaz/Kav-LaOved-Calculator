@@ -49,3 +49,19 @@ QUnit.test("Half day a week", function(assert) {
 	result = result.substring(90);
 	assert.equal( result, good, "Simple pension" );
 })
+QUnit.test("4 years pension", function(assert) {
+	var good = ' \
+<div id="div_output_header"><table width="100%"><tbody><tr><td width="10%">03-11-2015</td><td style="text-align:left;" width="90%"></td></tr></tbody></table><br>שם עובד: <br>שם המעסיק: <br>שם עורך החישוב: <br>שנים: 4, &nbsp;&nbsp;&nbsp;&nbsp; חודשים: 0.00<br>תקופת עבודה: (04-11-2011) - (03-11-2015)<br>אחוז משרה: 100.0%<br>הערות: <br><br></div> \
+		<div id="div_output_body"><u></u> על פי חוק, החישוב נעשה על בסיס שכר המינימום בישראל או השכר בפועל - הגבוה מביניהם<br><u>חישוב פנסיה</u> (הפרשות המעסיק בלבד, החל מהחודש השביעי לעבודה)<table border="1" id="output_table4"><tbody><tr><td><b>תקופה</b></td><td><b>מס חודשים לחישוב</b></td><td><b>שכר בסיס</b></td><td><b>אחוזים</b></td><td><b>רכיב הגמל</b></td><td><b>רכיב הפיצויים</b></td><td><b>סכום תקופה</b></td></tr><tr><td>04-11-2011 - 31-12-2011</td><td style="text-align:center;">0.00</td><td style="text-align:center;">4,100.00</td><td style="text-align:center;">3.33%+3.33%</td><td style="text-align:center;">0.00</td><td style="text-align:center;">0.00</td><td style="text-align:center;">0.00</td></tr><tr></tr><tr><td>01-01-2012 - 30-09-2012</td><td style="text-align:center;">4.90</td><td style="text-align:center;">4,100.00</td><td style="text-align:center;">4.16%+4.16%</td><td style="text-align:center;">835.74</td><td style="text-align:center;">835.74</td><td style="text-align:center;">1,671.49</td></tr><tr></tr><tr><td>01-10-2012 - 31-12-2012</td><td style="text-align:center;">3.00</td><td style="text-align:center;">4,300.00</td><td style="text-align:center;">4.16%+4.16%</td><td style="text-align:center;">536.64</td><td style="text-align:center;">536.64</td><td style="text-align:center;">1,073.28</td></tr><tr></tr><tr><td>01-01-2013 - 31-12-2013</td><td style="text-align:center;">12.00</td><td style="text-align:center;">4,300.00</td><td style="text-align:center;">5.00%+5.00%</td><td style="text-align:center;">2,580.00</td><td style="text-align:center;">2,580.00</td><td style="text-align:center;">5,160.00</td></tr><tr></tr><tr><td>01-01-2014 - 31-03-2015</td><td style="text-align:center;">15.00</td><td style="text-align:center;">4,300.00</td><td style="text-align:center;">6.00%+6.00%</td><td style="text-align:center;">3,870.00</td><td style="text-align:center;">3,870.00</td><td style="text-align:center;">7,740.00</td></tr><tr></tr><tr><td>01-04-2015 - 03-11-2015</td><td style="text-align:center;">7.10</td><td style="text-align:center;">4,650.00</td><td style="text-align:center;">6.00%+6.00%</td><td style="text-align:center;">1,980.90</td><td style="text-align:center;">1,980.90</td><td style="text-align:center;">3,961.80</td></tr><tr></tr></tbody></table><b>סה"כ: 19,606.57</b><br><br></div> \
+		<div id="div_output_footer" style="align:center;padding-right:0.5cm;padding-left:0.5cm;padding-top:1cm"></div>';
+	showForm(1);
+	$("#formElement2-1").val("2011-11-04");
+	$("#formElement3-1").val("2015-11-03");
+	resetOutput();main([calcPension,calcCompen,calcEarly]);
+	var result = $('#div_output').html();
+	good = good.replace(/[\t\n\s]+/g, "");
+	good = good.substring(90);
+	result = result.replace(/[\t\n\s]+/g, "");
+	result = result.substring(90);
+	assert.equal( result, good, "Simple pension" );
+})
