@@ -202,7 +202,7 @@ Worker.prototype = {
 	  var yearsDaysTotal = 0;
 	  var yearsRecuperationTotal = 0;
 	  var running_date = addMonth(new Date(this.startWorkDate),12*i);
-	  for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1]; j++){
+	  for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1] && j < recuperationValues.length; j++){
 		yearsDaysTotal += recuperationValues[j][0];
 		yearsRecuperationTotal += recuperationValues[j][1];
 	  }
@@ -236,7 +236,7 @@ Worker.prototype = {
 	  for(i=0; i<vacationDayList.length/12;i++){
       var yearsDaysTotal = 0;
       var running_date = addMonth(new Date(this.startWorkDate),12*i);
-      for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1]; j++){
+      for(j=i*12; j<(i+1)*12 && j < this.dateDiff[0]*12 + this.dateDiff[1] && j < vacationDayList.length; j++){
         yearsDaysTotal += vacationDayList[j][0];
         if(j+36 >= vacationDayList.length)
           vacation_days+=vacationDayList[j][0];
