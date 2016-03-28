@@ -74,7 +74,11 @@ pension_data=[
 [new Date('2015-04-01 00:00:00'),4650,0.06,0.06],
 ];
 
-pension_data_cleaner=[0.07, 0.0833];
+pension_data_cleaner=[
+[new Date('2014-03-01 00:00:00'), 0.07, 0.0833],
+[new Date('2015-07-01 00:00:00'), 0.075, 0.0833],
+];
+
 pension_data_cleaner_overtime=[
 [new Date('2013-11-01 00:00:00'), 0.07, 0.06],
 [new Date('2015-07-01 00:00:00'), 0.075, 0.06],

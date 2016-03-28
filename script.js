@@ -224,6 +224,21 @@ function showForm(formId){
 	checkedEligCompen();
 }
 
+function getItemByDate(array, date) {
+	return array[getIndexByDate(array, date)];
+}
+function getIndexByDate(array, date) {
+	if(array.length == 1)
+		return 0;
+	var index = 0;
+	var runningDate = new Date(array[1][0]);
+	while(index + 1 < array.length && runningDate <= date) {
+		index++;
+		runningDate = new Date(array[index][0]);
+	}
+	return index;
+}
+
 function getItem(array, index) {
 	//returns the item from an array, if index is biggr than array returns the last one
 	index = index >= array.length ? array.length - 1 : index;
@@ -293,12 +308,15 @@ function getOldness(period, yearsBack){
 }
 
 function getPensionData(date) {
-	var index = getPensionDataIndex(date);
+	/*var index = getPensionDataIndex(date);
 	var data = pension_data[index];
-	return data;
+	return data;*/
+	return getItemByDate(pension_data, date);
 }
 
 function getPensionDataIndex(date) {
+	return getIndexByDate(pension_data, date);
+	/*
 	//util function
 	var running_index = 0;
 	while(running_index < pension_data.length && date >= pension_data[running_index][0]){
@@ -306,7 +324,7 @@ function getPensionDataIndex(date) {
 	}
 	if(running_index>0)
 		running_index--;
-	return running_index
+	return running_index*/
 }
 
 function calcRecuper(isFirst){

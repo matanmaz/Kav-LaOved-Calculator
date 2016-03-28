@@ -353,23 +353,14 @@ Worker.prototype = {
   },
 
   isPensionSame: function (dateA, dateB) {
-	//whether the pension in the index is the same considering the wage and the percentage
-	var indexA = getPensionDataIndex(dateA);
-	var indexB = getPensionDataIndex(dateB);
-	//check pension percentage diff
-	for(var i=2;i<pension_data[indexA].length;i++)
-	  if(pension_data[indexA][i]!=pension_data[indexB][i])
-		return false;
-	return this.isWageSame(dateA, dateB);
+	isSame = this.getPeriodPensionPercentage(dateA) == this.getPeriodPensionPercentage(dateB);
+	isSame = isSame && (this.getPeriodCompensationPercentage(dateA) == this.getPeriodCompensationPercentage(dateB));
+	return isSame && this.isWageSame(dateA, dateB);
   },
   
   isWageSame: function (dateA, dateB) {
 	//check wage diff
-	var wageA = this.getMonthWage(dateA);
-	var wageB = this.getMonthWage(dateB);
-	if(wageA != wageB)
-	  return false;
-	return true;
+	return this.getMonthWage(dateA) == this.getMonthWage(dateB);
   },
 
   getHolidayValue: function (date) {
@@ -627,14 +618,14 @@ CleaningWorker.prototype = {
 	if(date < this.getExpansionDate())
 	  return Worker.prototype.getPeriodPensionPercentage.call(this, date);
 	else
-	  return pension_data_cleaner[0];
+	  return getItemByDate(pension_data_cleaner, date)[1];
   },
 
   getPeriodCompensationPercentage: function (date) {
 	if(date < this.getExpansionDate())
 	  return Worker.prototype.getPeriodCompensationPercentage.call(this, date);
 	else
-	  return pension_data_cleaner[1];
+	  return getItemByDate(pension_data_cleaner, date)[2];
   },
 
   getPensionBottomLine: function(total_value, isEligibleToSeparationShowing) {
