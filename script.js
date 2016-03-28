@@ -729,6 +729,43 @@ function getNumDaysInMonth(year,month){
 function getDateDiff(startDate, endDate) {
 	//utility
 	//calculates B - A
+	//Simulates the passing of time
+	var dateA = new Date(startDate);
+	var dateB = new Date(endDate);
+	if(dateA == "Invalid Date" || dateB == "Invalid Date")
+	{
+		alert(STR.alert_no_dates[LANG]);
+		return;
+	}
+	dateB = new Date(dateB.setDate(dateB.getDate()+1));
+	var runningDate = new Date(dateA);
+	var years = 0;
+	var months = 0;
+	//run years
+	runningDate = addMonth(runningDate, 12);
+	while(runningDate <= dateB) {
+		years++;
+		runningDate = addMonth(runningDate, 12);
+	}
+	runningDate = addMonth(runningDate, -11);
+	//run months
+	while(runningDate <= dateB) {
+		months++;
+		runningDate = addMonth(runningDate, 1);
+	}
+	runningDate = addMonth(runningDate, -1);
+	
+	//run "days"
+	var diff = dateB - runningDate;
+	var milisThisMonth = (MILI_IN_DAY*daysInMonth(runningDate.getMonth()+1, runningDate.getUTCFullYear()))
+	months += Math.min(1, diff / milisThisMonth);
+	return [years, months];
+}
+
+function getDateDiff3(startDate, endDate) {
+	//utility
+	//calculates B - A
+	//Uses conversions between days, months, and years --> inaccurate
 	var dateA = new Date(startDate);
 	var dateB = new Date(endDate);
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
