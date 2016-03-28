@@ -1,6 +1,6 @@
 QUnit.test( "Todays Date", function( assert ) {
 	var date = new Date();
-	assert(last_update == "" + date.getDate() + "." + (date.getMonth()+1) + "." + date.getUTCFullYear());
+	assert.equal("" + date.getDate() + "." + (date.getMonth()+1) + "." + date.getUTCFullYear(), last_update, "Todays Date");
 });
 
 QUnit.test( "Basic Recuper", function( assert ) {
