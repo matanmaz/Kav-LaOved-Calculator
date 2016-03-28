@@ -231,10 +231,8 @@ function getIndexByDate(array, date) {
 	if(array.length == 1)
 		return 0;
 	var index = 0;
-	var runningDate = new Date(array[1][0]);
-	while(index + 1 < array.length && runningDate <= date) {
+	while(index + 1 < array.length && date >= array[index+1][0]) {
 		index++;
-		runningDate = new Date(array[index][0]);
 	}
 	return index;
 }
