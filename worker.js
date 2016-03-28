@@ -553,6 +553,13 @@ C_PUBLIC　= "2";
 C_HOTEL　= "3";
 CleaningWorker.prototype = {
 
+  getPensionWaiting: function (date) {
+  	if(date < this.getExpansionDate())
+	  return Worker.prototype.getPensionWaiting.call(this, date);
+	else
+	  return 0;
+  },
+  
   getCompensation: function(){
 	//from normal wage
 	var compen = this.getMonthWage(this.endWorkDate) * (this.dateDiff[0] + this.dateDiff[1]/12);
