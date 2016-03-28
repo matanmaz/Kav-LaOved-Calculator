@@ -1,3 +1,8 @@
+QUnit.test( "Todays Date", function( assert ) {
+	var date = new Date();
+	assert(last_update == "" + date.getDate() + "." + (date.getMonth()+1) + "." + date.getUTCFullYear());
+});
+
 QUnit.test( "Basic Recuper", function( assert ) {
 	var good = '<div id="div_output_header"><table width="100%"><tbody><tr><td width="10%">22-10-2015</td><td style="text-align:left;" width="90%"></td></tr></tbody></table><br>שם עובד: <br>שם המעסיק: <br>שם עורך החישוב: <br>שנים: 1, &nbsp;&nbsp;&nbsp;&nbsp; חודשים: 0.00<br>תקופת עבודה: (23-10-2014) - (22-10-2015)<br>אחוז משרה: 100.0%<br>הערות: <br><br></div>\n<div id="div_output_body"><u>חישוב דמי הבראה (תשלום ליום הבראה: 378 ש"ח)</u><table border="1" id="output_table0"><tbody><tr><td><b>שנים</b></td><td><b>ימי זכאות</b></td><td><b>ימים לעובד</b></td><td><b>סכום בכל שנה</b></td></tr><tr><td>1</td><td style="text-align:center;">5.00</td><td style="text-align:center;">4.98</td><td style="text-align:center;">1,882.25</td></tr><tr></tr></tbody></table><b>סה"כ: 1,882.25</b><br><br><u>חישוב חופשה (תשלום ליום חופשה: 186.00 ש"ח)</u><table border="1" id="output_table1"><tbody><tr><td><b>שנים</b></td><td><b>ימים לשנה מלאה</b></td><td><b>ימי חופשה לעובד</b></td><td><b>סכום בכל שנה</b></td></tr><tr><td>1</td><td style="text-align:center;">12</td><td style="text-align:center;">12</td><td style="text-align:center;">2,232.00</td></tr><tr></tr></tbody></table><b>סה"כ: 2,232.00</b><br><br></div>\n<div id="div_output_footer" style="align:center;padding-right:0.5cm;padding-left:0.5cm;padding-top:1cm"></div>';
 	showForm(1);
