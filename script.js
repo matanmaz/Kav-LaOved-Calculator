@@ -1,4 +1,4 @@
-﻿last_update = "28.3.2016"
+﻿last_update = "16.4.2016"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -59,7 +59,7 @@ function addInputToForms(affected, label, type, id, defaultValue, onClickAction,
 
 function updateCleaningEmployeeExpansionDateLabel() {
 	var updatedDate = getExpansionDate(""+$('#formElement25-'+selectedForm+':checked').val())
-	$('#cleaningEmployeeExpansionDateLabel')[0].innerHTML = updatedDate.toLocaleDateString();
+	$('#cleaningEmployeeExpansionDateLabel')[0].innerHTML = dateToString(updatedDate,1);
 }
 
 function initPage() {
@@ -91,7 +91,7 @@ function initPage() {
 		+ "</td><td>%s<label id='cleaningEmployeeExpansionDateLabel'>%s</label>";
 		+ "</td></tr>";
     $("#form"+CLEANING_WORKER_FORM).append(sprintf(formElement25,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,CLEANING_WORKER_FORM,
-    		STR.expansion_date_label[LANG], getExpansionDate(C_PRIVATE).toLocaleDateString()));
+    		STR.expansion_date_label[LANG], dateToString(getExpansionDate(C_PRIVATE),1)));
 
 	//Employee Name
 	addInputToAllForms(STR.employee_name[LANG], "text", 1, "");
@@ -105,9 +105,9 @@ function initPage() {
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
-	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,2));
+	addInputToAllForms(STR.start_date[LANG], "text", 2, dateToString(lastYear,1));
 	//End Date
-	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
+	addInputToAllForms(STR.end_date[LANG], "text", 3, dateToString(new Date(),1));
 	//Month Wage
 	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,4], STR.month_wage[LANG], "number", 4, "");
 	//Work Percentage
@@ -287,15 +287,20 @@ function isInputValid(startDate, endDate){
 }
 
 function getEndDate() {
-	var end_date = new Date($("#formElement3-"+selectedForm).val() + " 00:00:00");
+	var end_date = stringToDate($("#formElement3-"+selectedForm).val());
 	return end_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
 }
 
 function getStartDate() {
-	var start_date = new Date($("#formElement2-"+selectedForm).val() + " 00:00:00");
+
+	var start_date = stringToDate($("#formElement2-"+selectedForm).val());
 	return start_date;
 	//return new Date(end_date.setDate(end_date.getDate()+1));
+}
+
+function stringToDate(strDate) {
+	return new Date(moment(strDate,"DD-MM-YYYY").valueOf());
 }
 
 function getOldness(period, yearsBack){
@@ -635,17 +640,21 @@ function getMonthsDiff (startDate, endDate) {
 
 function dateToString (date, format) {
 	if(format==0)
+		//month and year only
 		return date.getMonth()+1 + "/" + date.getFullYear();
 	else if(format==1){
-		month = (date.getMonth()+1);
+		//DD-MM-YYYY
+		/*month = (date.getMonth()+1);
 		if(month<10)
 			month = "0"+month;
 		day = date.getDate();
 		if(day<10)
 			day = "0"+day;
-		return  day + "-" + month + "-" + date.getFullYear();
+		return  day + "-" + month + "-" + date.getFullYear();*/
+		return moment(date).format('DD-MM-YYYY');
 	}
 	else if(format==2){
+		//YYYY-MM-DD
 		day = ("0" + date.getDate()).slice(-2);
     	month = ("0" + (date.getMonth() + 1)).slice(-2);
 
