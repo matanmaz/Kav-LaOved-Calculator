@@ -70,3 +70,19 @@ QUnit.test("4 years pension", function(assert) {
 	result = result.substring(90);
 	assert.equal( result, good, "Simple pension" );
 })
+
+QUnit.test("Well rounded compensation", function(assert) {
+	var good = ' \
+style="text-align:left;"width="90%"><imgsrc="cropped-logo.gif"></td></tr></tbody></table><br>שםעובד:<br>שםהמעסיק:<br>שםעורךהחישוב:<br>שנים:3,&nbsp;&nbsp;&nbsp;&nbsp;חודשים:0.17<br>תקופתעבודה:(11-06-2013)-(15-06-2016)<br>אחוזמשרה:100.0%<br>הערות:<br><br></div><divid="div_output_body"><u></u>עלפיחוק,החישובנעשהעלבסיסשכרהמינימוםבישראלאוהשכרבפועל-הגבוהמביניהם<br><u>חישובפנסיה</u>(הפרשותהמעסיקבלבד,החלמהחודשהשביעילעבודה)<tableborder="1"id="output_table0"><tbody><tr><td><b>תקופה</b></td><td><b>מסחודשיםלחישוב</b></td><td><b>שכרבסיס</b></td><td><b>אחוזים</b></td><td><b>רכיבהגמל</b></td><td><b>סכוםתקופה</b></td></tr><tr><td>11-06-2013-31-12-2013</td><tdstyle="text-align:center;">0.70</td><tdstyle="text-align:center;">4,300.00</td><tdstyle="text-align:center;">5.00%</td><tdstyle="text-align:center;">150.50</td><tdstyle="text-align:center;">150.50</td></tr><tr></tr><tr><td>01-01-2014-31-03-2015</td><tdstyle="text-align:center;">15.00</td><tdstyle="text-align:center;">4,300.00</td><tdstyle="text-align:center;">6.00%</td><tdstyle="text-align:center;">3,870.00</td><tdstyle="text-align:center;">3,870.00</td></tr><tr></tr><tr><td>01-04-2015-15-06-2016</td><tdstyle="text-align:center;">14.50</td><tdstyle="text-align:center;">4,650.00</td><tdstyle="text-align:center;">6.00%</td><tdstyle="text-align:center;">4,045.50</td><tdstyle="text-align:center;">4,045.50</td></tr><tr></tr></tbody></table><b>סה"כ:8,066.00</b><br><br><u>פיצוייפיטורין</u><tableborder="1"id="output_table1"><tbody><tr></tr></tbody></table>סכוםהשכרXמספרהשנים:<pstyle="text-align:right;"dir="ltr">3.01X4,650.00=<b>13,996.50</b></p><u>חישובהודעהמוקדמת(תמורתהודעהמוקדמת:186.00ש"ח)</u><tableborder="1"id="output_table2"><tbody><tr></tr><tr><td>ימיםקלנדריים:</td><td><b>חודש</b></td></tr><tr><td>סכוםלתשלום:</td><td><b>4,650.00</b></td></tr></tbody></table></div><divid="div_output_footer"style="align:center;padding-right:0.5cm;padding-left:0.5cm;padding-top:1cm"><imgwidth="100%"src="contact-info.jpg"></div>';
+	showForm(1);
+	$("#formElement2-1").val("11-06-2013");
+	$("#formElement3-1").val("15-06-2016");
+	$('#formElement13-1').click();
+	resetOutput();main([calcPension,calcCompen,calcEarly]);
+	var result = $('#div_output').html();
+	good = good.replace(/[\t\n\s]+/g, "");
+	good = good.substring(90);
+	result = result.replace(/[\t\n\s]+/g, "");
+	result = result.substring(90);
+	assert.equal( result, good, "Simple pension" );
+})

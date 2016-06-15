@@ -1,4 +1,4 @@
-﻿last_update = "20.5.2016"
+﻿last_update = "15.6.2016"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -538,24 +538,31 @@ function calcCompen (isFirst) {
 	}
 	//in this case indeed some money is deserved and we show the calculation
 	else {
-		compensation = worker.getCompensation();
 		
 		if(sep_elig && selectedForm == CLEANING_WORKER_FORM){
+			compensation = round(dateDiff[0] + dateDiff[1]/12, 2) * round(month_value,2) + round(worker.getOvertimePensionData()[1] ,2);
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 			 "dir='ltr'>%.2f X %.2f + %.2f = <b>%.2f</b></p>",
 					STR.compen_label5[LANG], dateDiff[0] + dateDiff[1]/12, month_value, worker.getOvertimePensionData()[1], compensation));
 		}
 		else if(sep_elig && (!sep_elig_show_details) ){
+			compensation = round(dateDiff[0] + dateDiff[1]/12, 2) * round(month_value,2)
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 			 "dir='ltr'>%.2f X %.2f = <b>%.2f</b></p>",
 					STR.compen_label1[LANG], dateDiff[0] + dateDiff[1]/12, month_value, compensation));
 		}
 		else if(sep_elig && sep_elig_show_details){
+			compensation = round(dateDiff[0] + dateDiff[1]/12,2) * round(month_value,2);
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
 			 "dir='ltr'>%.2f X %.2f - %.2f = <b>%.2f</b></p>",
 					STR.output_compen_complement[LANG], dateDiff[0] + dateDiff[1]/12, month_value, sepPayTotal, compensation - sepPayTotal));
 		}
 	}
+}
+
+function round(dec, places) {
+	var helper = Math.pow(10,places);
+	return Math.round(dec*helper)/helper;
 }
 
 function calcEarly (isFirst) {
