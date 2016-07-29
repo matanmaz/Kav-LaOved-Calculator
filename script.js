@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 ﻿last_update = "29.7.2016"
-=======
-﻿last_update = "15.6.2016"
->>>>>>> origin/master
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
