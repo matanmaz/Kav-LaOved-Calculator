@@ -1,4 +1,4 @@
-function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
+﻿function Worker(startWorkDate, endWorkDate, isEligibleToSeperation) {
 	this.startWorkDate = startWorkDate;
 	this.endWorkDate = endWorkDate;
 	this.isEligibleToSeperation = isEligibleToSeperation;
@@ -180,7 +180,7 @@ Worker.prototype = {
 	while(running_date <= this.endWorkDate)
 	{
 	  var irecuperation_value = 0;
-	  var partial = (this.endWorkDate - running_date) / (AVERAGE_TIME_IN_MONTH);
+	  var partial = getMonthsDiff(running_date,this.endWorkDate);
 	  partial = Math.min(partial, 1); 
 	  var idays = partial * this.getRecuperationDays(running_date) / 12.0;
 	  if(this.isEligibleToRecuperation(running_date)){
@@ -300,7 +300,7 @@ Worker.prototype = {
   },
 
   getRecuperationDays: function(date, ignorePartial) {
-	var year = getYearsDiff(this.startWorkDate,date);
+	var year = getYearsDiff(this.startWorkDate,addDay(date,1));
 	var partial = this.getPartTimeFraction();
 	if(ignorePartial)
 	  partial = 1;
