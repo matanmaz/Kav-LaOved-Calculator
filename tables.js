@@ -18,8 +18,8 @@ recuperation_days_agr = 7;
 
 DEFAULT_WORK_WEEK = 6;
 
-six_day_week_vacations = [12,12,12,12,14,16,18,19,20,21,22,23,24,24];
-five_day_week_vacations = [10,10,10,10,12,14,15,16,17,18,19,20,20];
+six_day_week_vacations = [13,13,13,13,14,16,18,19,20,21,22,23,24,24];
+five_day_week_vacations = [11,11,11,11,12,14,15,16,17,18,19,20,20];
 four_day_week_vacations = [8,8,8,8,10,11,12,13,14,15,15,16,16,16];
 three_day_week_vacations = [6,6,6,6,7,8,9,10,10,11,11,12,12,12];
 two_day_week_vacations = [4,4,4,4,5,5,6,6,7,7,8,8,8,8];
@@ -72,6 +72,7 @@ pension_data=[
 [new Date('2013-01-01 00:00:00'),4300,0.05,0.05],
 [new Date('2014-01-01 00:00:00'),4300,0.06,0.06],
 [new Date('2015-04-01 00:00:00'),4650,0.06,0.06],
+[new Date('2016-07-01 00:00:00'),4825,0.0625,0.06],
 ];
 
 pension_data_cleaner=[
