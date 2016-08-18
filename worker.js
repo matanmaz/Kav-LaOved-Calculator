@@ -364,7 +364,8 @@ Worker.prototype = {
   },
 
   getHolidayValue: function (date) {
-	return holiday_ratio * this.getVacationDayValue(date);
+  	//the value of a 25 hour day at 150%
+	return holiday_ratio * (this.getVacationDayValue(date) + this.getPeriodMinWage(this.endWorkDate)/HOURS_IＮ_MONTH);
   },
 
   getHishtalmutEligibleDay: function() { return null},

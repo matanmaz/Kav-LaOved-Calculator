@@ -1,4 +1,4 @@
-﻿last_update = "29.7.2016"
+﻿last_update = "18.8.2016"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -499,8 +499,14 @@ function calcHolidays(isFirst){
 
 	numHolidays = $('#formElement7-'+selectedForm).val();
 	if(numHolidays!="0" && numHolidays!="")
-		output_body.append(sprintf("<p>%s: %s</p>",
-			STR.num_holidays[LANG], numHolidays, STR.total_amount_holidays[LANG]));
+	{
+		output_body.append(sprintf("%s: %s<br/>",
+			STR.num_holidays[LANG], numHolidays));
+		output_body.append(sprintf("%s: %.2f<br/>",
+			STR.holiday_day[LANG], worker.getHolidayValue(worker.endWorkDate)))
+		output_body.append(sprintf("%s: %.2f",
+			STR.total_amount_holidays[LANG], numHolidays * worker.getHolidayValue()))
+	}
 }
 
 function calcCompen (isFirst) {
@@ -746,11 +752,6 @@ function resetOutput () {
 	output_body.empty();
 	output_footer = $("#div_output_footer");
 	output_footer.empty();
-}
-
-function getHolidayTotal (yearNum, numHolidays) {
-	//utility
-	return getHolidayValue(yearNum) * numHolidays;
 }
 
 function getNumDaysInMonth(year,month){

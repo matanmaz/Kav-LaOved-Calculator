@@ -58,7 +58,7 @@
 	amount_per_year : ['Amount', 'סכום בכל שנה'],
 	total_amount : ['Total', 'סה"כ'],
 	total_amount_oldness : ['Total (Statute of Limitations factored in)','סה"כ בהתחשב בהתיישנות'],
-	total_amount_holidays : ['Total Amount', 'שכר עבודה בימי החג'],
+	total_amount_holidays : ['Salary for Holiday Work', 'שכר עבודה בימי החג'],
 	alert_no_hours_in_week : ['Please enter the hours per week','הכנס שעות בשבוע'],
 	work_percentage : ['Percentage of Work', 'אחוז משרה'],
 	base_salary_for_calc : ['Base Salary for Calculation','שכר בסיס'],
