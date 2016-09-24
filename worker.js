@@ -220,7 +220,7 @@ Worker.prototype = {
 	  var vacation_days_without_oldness = 0;
 
 	  var running_date = new Date(this.startWorkDate);
-    var vacationDayValue = this.getVacationDayValue(this.endWorkDate);
+	  var vacationDayValue = this.getVacationDayValue(this.endWorkDate);
 	  //loop on all of the time of work
 	  while(running_date <= this.endWorkDate)
 	  {
@@ -232,7 +232,7 @@ Worker.prototype = {
   		//increment date by a month
   		running_date.setMonth(running_date.getMonth()+1);
 	  }
-  	//sum up each year's months
+	  //sum up each year's months
 	  for(i=0; i<vacationDayList.length/12;i++){
       var yearsDaysTotal = 0;
       var running_date = addMonth(new Date(this.startWorkDate),12*i);
@@ -314,13 +314,11 @@ Worker.prototype = {
 
   getVacationDays: function (date) {
   	var year = getYearsDiff(this.startWorkDate,date);
-	fiveDayWeekVacation = getItem(five_day_week_vacations, year);
-	sixDayWeekVacation = getItem(six_day_week_vacations, year);
 
 	if(this.daysPerWeek != 6)
-	  return fiveDayWeekVacation;
+	  return lookupVacationDays(date, 5, year);
 	else
-	  return sixDayWeekVacation;
+	  return lookupVacationDays(date, 6, year);
   },
 
   getNumWorkDaysInMonth: function(){
@@ -392,11 +390,11 @@ HourlyWorker.prototype = {
   	var year = getYearsDiff(this.startWorkDate,date);
 	if(this.daysPerWeek>1)
 	{
-	  return getItem(x_day_week_vacations[this.daysPerWeek-1], year);
+	  return lookupVacationDays(date, this.daysPerWeek, year);
 	}
 	else if(this.daysPerWeek>0)
 	{
-	  return this.daysPerWeek * getItem(x_day_week_vacations[0], year);
+	  return this.daysPerWeek * lookupVacationDays(date, 1, year);
 	}	
 	else
 		return 0;

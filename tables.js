@@ -18,8 +18,6 @@ recuperation_days_agr = 7;
 
 DEFAULT_WORK_WEEK = 6;
 
-six_day_week_vacations = [13,13,13,13,14,16,18,19,20,21,22,23,24,24];
-five_day_week_vacations = [11,11,11,11,12,14,15,16,17,18,19,20,20];
 four_day_week_vacations = [8,8,8,8,10,11,12,13,14,15,15,16,16,16];
 three_day_week_vacations = [6,6,6,6,7,8,9,10,10,11,11,12,12,12];
 two_day_week_vacations = [4,4,4,4,5,5,6,6,7,7,8,8,8,8];
@@ -28,9 +26,31 @@ x_day_week_vacations = [one_day_week_vacations,
 	two_day_week_vacations,
 	three_day_week_vacations,
 	four_day_week_vacations,
-	five_day_week_vacations,
-	six_day_week_vacations,
 ];
+function lookupVacationDays(date, days_per_week, years) {
+	switch(days_per_week){
+		case 6:
+			if (date > new Date('07.01.2016')){
+				data = [13,13,13,13,14,16,18,19,20,21,22,23,24,24];
+				return getItem(data, years);
+			}
+			else {
+				data = [12,12,12,12,14,16,18,19,20,21,22,23,24,24];
+				return getItem(data, years);
+			}
+		case 5:
+			if (date > new Date('07.01.2016')){
+				data = [11,11,11,11,12,14,15,16,17,18,19,20,20];
+				return getItem(data, years);
+			}
+			else {
+				data = [10,10,10,10,12,14,15,16,17,18,19,20,20];
+				return getItem(data, years);
+			}
+		default:
+			return getItem(x_day_week_vacations[days_per_week-1], years)
+	}
+}
 
 agr_vacations = [12,12,12,16,16];
 agr_min_wage_bonus = [0,17.5,35,52.5,70];
