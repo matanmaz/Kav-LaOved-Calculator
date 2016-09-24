@@ -105,9 +105,9 @@ function initPage() {
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
-	addInputToAllForms(STR.start_date[LANG], "text", 2, dateToString(lastYear,1));
+	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,1));
 	//End Date
-	addInputToAllForms(STR.end_date[LANG], "text", 3, dateToString(new Date(),1));
+	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),1));
 	//Month Wage
 	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,4], STR.month_wage[LANG], "number", 4, "");
 	//Work Percentage
@@ -302,7 +302,7 @@ function getStartDate() {
 }
 
 function stringToDate(strDate) {
-	return new Date(moment(strDate,"DD-MM-YYYY").valueOf());
+	return new Date(moment(strDate,"YYYY-MM-DD").valueOf());
 }
 
 function getOldness(period, yearsBack){
