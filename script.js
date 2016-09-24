@@ -70,6 +70,8 @@ function initPage() {
 	else
 		document.body.dir="rtl";
 
+	$('#div_output_donation').hide();
+
 	$("#div_main").append('Calculator from: ' + last_update + "<br/>");
 	
 	$("#div_main").append('<input id="lang0" type="button" value="English" onClick="setLang(0);"/> ');
@@ -105,9 +107,9 @@ function initPage() {
 	lastYear = new Date();
 	lastYear.setYear(lastYear.getFullYear()-1);
 	lastYear.setDate(lastYear.getDate() + 1);
-	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,1));
+	addInputToAllForms(STR.start_date[LANG], "date", 2, dateToString(lastYear,2));
 	//End Date
-	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),1));
+	addInputToAllForms(STR.end_date[LANG], "date", 3, dateToString(new Date(),2));
 	//Month Wage
 	addInputToForms([CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,4], STR.month_wage[LANG], "number", 4, "");
 	//Work Percentage
@@ -176,6 +178,8 @@ function main(funcs) {
 	var transportationCosts = 1*$('#formElement29-'+selectedForm).val();
 	var isSep = isSeparationEligible();
 
+	showDonationMessage();
+
 	switch(selectedForm){
 		case CLEANING_WORKER_FORM:
 			worker = new CleaningWorker(getStartDate(), getEndDate(), isSep, work_percentage, hour_value, cleaning_type, 
@@ -200,6 +204,11 @@ function main(funcs) {
 		else
 			funcs[i]();
 	};
+}
+
+function showDonationMessage(){
+	$('#div_output_donation').show()
+	$('#div_output_donation').append(donation_message);
 }
 
 function checkedEligCompen(){
@@ -754,6 +763,7 @@ function resetOutput () {
 	output_body.empty();
 	output_footer = $("#div_output_footer");
 	output_footer.empty();
+	$('#div_output_donation').hide()
 }
 
 function getNumDaysInMonth(year,month){
