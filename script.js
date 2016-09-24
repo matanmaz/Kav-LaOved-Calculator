@@ -1,4 +1,4 @@
-﻿last_update = "18.8.2016"
+﻿last_update = "24.9.2016"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -500,12 +500,12 @@ function calcHolidays(isFirst){
 	numHolidays = $('#formElement7-'+selectedForm).val();
 	if(numHolidays!="0" && numHolidays!="")
 	{
-		output_body.append(sprintf("%s: %s<br/>",
+		output_body.append(sprintf("<b>%s</b>: %s<br/>",
 			STR.num_holidays[LANG], numHolidays));
-		output_body.append(sprintf("%s: %.2f<br/>",
+		output_body.append(sprintf("<b>%s</b>: %.0f<br/>",
 			STR.holiday_day[LANG], worker.getHolidayValue(worker.endWorkDate)))
-		output_body.append(sprintf("%s: %.2f",
-			STR.total_amount_holidays[LANG], numHolidays * worker.getHolidayValue()))
+		output_body.append(sprintf("<b>%s</b>: %.0f",
+			STR.total_amount_holidays[LANG], numHolidays * worker.getHolidayValue(worker.endWorkDate)))
 	}
 }
 
@@ -611,7 +611,7 @@ function calcEarly (isFirst) {
 		earlyPay = worker.getMonthWage(end_date);
 	}
 	output_table_id = createOutputTable(isFirst, 
-		sprintf("%s (%s: %.2f " + STR.shekels[LANG] + ")",STR.output_early[LANG], STR.early_days[LANG], worker.getDayWage(end_date)), 
+		sprintf("%s: %.2f " + STR.shekels[LANG],STR.early_days[LANG], worker.getDayWage(end_date)), 
 		start_date, 
 		end_date,
 		[], [], []);
