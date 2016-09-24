@@ -130,10 +130,12 @@ function initPage() {
 	addInputToForms([CLEANING_WORKER_FORM, DAILY_WORKER_FORM, CARETAKER_FORM,AGRICULTURAL_WORKER_FORM,MONTHLHY_WORKER_FORM],STR.elig_compen[LANG], "checkbox", 13, "", "checkedEligCompen()");
 	//Show Eligibility Details?
 	formElement24 = "<tr id='formElementRow24-%d'><td>"+STR.show_elig_details[LANG] + ":</td><td><input type='checkbox' id='formElement24-%d'/></td></tr>";
+    $("#form0").append(sprintf(formElement24,0,0));
     $("#form1").append(sprintf(formElement24,1,1));
 	$("#form2").append(sprintf(formElement24,2,2));
 	$("#form3").append(sprintf(formElement24,3,3));
 	$("#form4").append(sprintf(formElement24,4,4));
+
 	//Calculate with　Ｏｌｄｎｅｓｓ?
 	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
 
