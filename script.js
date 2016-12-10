@@ -511,12 +511,13 @@ function calcHolidays(isFirst){
 	numHolidays = $('#formElement7-'+selectedForm).val();
 	if(numHolidays!="0" && numHolidays!="")
 	{
+		var holidayValue = Math.round(worker.getHolidayValue(worker.endWorkDate));
 		output_body.append(sprintf("<b>%s</b>: %s<br/>",
 			STR.num_holidays[LANG], numHolidays));
 		output_body.append(sprintf("<b>%s</b>: %.0f<br/>",
-			STR.holiday_day[LANG], worker.getHolidayValue(worker.endWorkDate)))
+			STR.holiday_day[LANG], holidayValue))
 		output_body.append(sprintf("<b>%s</b>: %.0f",
-			STR.total_amount_holidays[LANG], numHolidays * worker.getHolidayValue(worker.endWorkDate)))
+			STR.total_amount_holidays[LANG], numHolidays * holidayValue))
 	}
 }
 
