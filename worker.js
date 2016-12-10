@@ -96,7 +96,7 @@ Worker.prototype = {
 	  return [periodString, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodTotal];
 	}
 	else {
-	  return [periodString, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodPensionTotal, periodTotal];
+	  return [periodString, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodCompensationTotal, periodTotal];
 	}
   },
   
