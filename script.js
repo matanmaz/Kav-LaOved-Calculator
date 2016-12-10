@@ -1,4 +1,4 @@
-﻿last_update = "24.9.2016"
+﻿last_update = "10.12.2016"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -838,7 +838,7 @@ function getDateDiff3(startDate, endDate) {
 }
 function getYearsDiff(startDate, endDate) {
 	//utility
-	//calculates B - A
+	//calculates B - A and rounds for years
 	var dateA = new Date(startDate);
 	var dateB = new Date(endDate);
 	if(dateA == "Invalid Date" || dateB == "Invalid Date")
@@ -846,9 +846,13 @@ function getYearsDiff(startDate, endDate) {
 		alert(STR.alert_no_dates[LANG]);
 		return;
 	}
-	dateB = new Date(dateB.setDate(dateB.getDate()+1));
-	var diff = dateB - dateA;
-	return Math.floor(diff / (365*MILI_IN_DAY));
+	var years = 0;
+	dateA = addMonth(dateA, 12);
+	while(dateA < dateB){
+		years++;
+		dateA = addMonth(dateA, 12);
+	}
+	return years;
 }
 function daysInMonth(month,year) {
     return new Date(year, month, 0).getDate();

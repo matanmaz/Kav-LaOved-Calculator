@@ -27,10 +27,12 @@ x_day_week_vacations = [one_day_week_vacations,
 	three_day_week_vacations,
 	four_day_week_vacations,
 ];
-function lookupVacationDays(date, days_per_week, years) {
+function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
+	var years = dateDiff[0];
+	var postReform = getMonthsDiff(date, new Date('07/01/2016')) < (workLeft[1] - workedSoFar[1]);
 	switch(days_per_week){
 		case 6:
-			if (date > new Date('07.01.2016')){
+			if (postReform){
 				data = [13,13,13,13,14,16,18,19,20,21,22,23,24,24];
 				return getItem(data, years);
 			}
@@ -39,7 +41,7 @@ function lookupVacationDays(date, days_per_week, years) {
 				return getItem(data, years);
 			}
 		case 5:
-			if (date > new Date('07.01.2016')){
+			if (postReform){
 				data = [11,11,11,11,12,14,15,16,17,18,19,20,20];
 				return getItem(data, years);
 			}

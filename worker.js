@@ -313,12 +313,12 @@ Worker.prototype = {
   },
 
   getVacationDays: function (date) {
-  	var year = getYearsDiff(this.startWorkDate,date);
-
+		var workedSoFar = getDateDiff(this.startWorkDate,date);
+		var workLeft = getDateDiff(date, this.endWorkDate);
 	if(this.daysPerWeek != 6)
-	  return lookupVacationDays(date, 5, year);
+	  return lookupVacationDays(date, 5, workedSoFar, workLeft);
 	else
-	  return lookupVacationDays(date, 6, year);
+	  return lookupVacationDays(date, 6, workedSoFar, workLeft);
   },
 
   getNumWorkDaysInMonth: function(){
