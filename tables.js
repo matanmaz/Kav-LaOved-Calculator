@@ -28,8 +28,9 @@ x_day_week_vacations = [one_day_week_vacations,
 	four_day_week_vacations,
 ];
 function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
-	var years = dateDiff[0];
-	var postReform = getMonthsDiff(date, new Date('07/01/2016')) < (workLeft[1] - workedSoFar[1]);
+	var years = workedSoFar[0];
+	//are we talking about a work year that some part of it is post reform?
+	var postReform = getMonthsDiff(date, new Date('07/01/2016')) < 12 && (workLeft[0]*12 + workLeft[1]) > getMonthsDiff(date, new Date('07/01/2016'));
 	switch(days_per_week){
 		case 6:
 			if (postReform){
