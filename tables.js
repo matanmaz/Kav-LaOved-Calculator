@@ -79,7 +79,7 @@ PENSION_G = 2;
 PENSION_P = 3;
 
 HISHTALMUT_PERCENTAGE = 0.075;
-HISHTALMUT_START = new Date('01/10/2014 00:00:00');
+HISHTALMUT_START = new Date('10/1/2014 00:00:00');
 
 //date, minimum wage, gemel, pitzuyim
 pension_data=[
