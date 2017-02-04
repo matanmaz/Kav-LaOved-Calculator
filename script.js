@@ -558,10 +558,17 @@ function calcCompen (isFirst) {
 	else {
 		
 		if(sep_elig && selectedForm == CLEANING_WORKER_FORM){
-			compensation = round(dateDiff[0] + dateDiff[1]/12, 2) * round(month_value,2) + round(worker.getOvertimePensionData()[1] ,2);
+			//this is ugly, but we need to know how much compensation was given in pension and subtract it
+			var rows = worker.getPensionTable(sep_elig_show_details)[1];
+			var pension_compensation = 0;
+			for(var i = 0; i < rows.length; i++)
+			{
+				pension_compensation += rows[i].period_compensation_total;
+			}
+			compensation = round(dateDiff[0] + dateDiff[1]/12, 2) * round(month_value,2) + round(worker.getOvertimePensionData()[1] - pension_compensation,2);
 			output_body.append(sprintf("%s:<p " + (isPageLtr()? "" : "style='text-align:right;' ") +
-			 "dir='ltr'>%.2f X %.2f + %.2f = <b>%.2f</b></p>",
-					STR.compen_label5[LANG], dateDiff[0] + dateDiff[1]/12, month_value, worker.getOvertimePensionData()[1], compensation));
+			 "dir='ltr'>%.2f X %.2f + %.2f - %.2f = <b>%.2f</b></p>",
+					STR.compen_label5[LANG], dateDiff[0] + dateDiff[1]/12, month_value, worker.getOvertimePensionData()[1], pension_compensation, compensation));
 		}
 		else if(sep_elig && (!sep_elig_show_details) ){
 			compensation = round(dateDiff[0] + dateDiff[1]/12, 2) * round(month_value,2)

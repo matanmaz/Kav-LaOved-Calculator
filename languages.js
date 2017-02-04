@@ -46,7 +46,7 @@
 	compen_label2 : ['Calendar days','ימים קלנדריים'],
 	compen_label3 : ['Work days','ימי עבודה'],
 	compen_label4 : ['Amount to pay','סכום לתשלום'],
-	compen_label5 : ['Wage X Number of Years + Overtime','סכום השכר X מספר השנים + שעות נוספות'],
+	compen_label5 : ['Wage X Number of Years + Overtime - Separation Pay Portion','סכום השכר X מספר השנים + שעות נוספות - רכיב הפיצויים'],
 	years : ['Years','שנים'],
 	months : ['Months','חודשים'],
 	period : ['Period','תקופה'],

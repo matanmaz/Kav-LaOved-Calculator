@@ -93,10 +93,21 @@ Worker.prototype = {
 
 	//different columns depending on sep:
 	if(this.isEligibleToSeperation && (!isEligibleToSeparationShowing) ){
-	  return [periodString, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodTotal];
+	  return {period_string:periodString, 
+	  	num_months:num_months, 
+	  	month_wage:this.getMonthWage(periodStart), 
+	  	period_percentage_string:periodPercentageString, 
+	  	period_pension_total:periodPensionTotal, 
+	  	period_total:periodTotal};
 	}
 	else {
-	  return [periodString, num_months, this.getMonthWage(periodStart), periodPercentageString, periodPensionTotal, periodCompensationTotal, periodTotal];
+	  return {period_string:periodString, 
+	  num_months:num_months, 
+	  month_wage:this.getMonthWage(periodStart), 
+	  period_percentage_string:periodPercentageString, 
+	  period_pension_total:periodPensionTotal, 
+	  period_compensation_total:periodCompensationTotal, 
+	  period_total:periodTotal};
 	}
   },
   
