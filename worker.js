@@ -315,10 +315,11 @@ Worker.prototype = {
   getVacationDays: function (date) {
 		var workedSoFar = getDateDiff(this.startWorkDate,date);
 		var workLeft = getDateDiff(date, this.endWorkDate);
+		var partial = this.getPartTimeFraction()
 	if(this.daysPerWeek != 6)
-	  return lookupVacationDays(date, 5, workedSoFar, workLeft);
+	  return partial*lookupVacationDays(date, 5, workedSoFar, workLeft);
 	else
-	  return lookupVacationDays(date, 6, workedSoFar, workLeft);
+	  return partial*lookupVacationDays(date, 6, workedSoFar, workLeft);
   },
 
   getNumWorkDaysInMonth: function(){
@@ -699,7 +700,7 @@ CleaningWorker.prototype = {
   getVacationDays: function (date) {
 	if(date >= this.getExpansionDate()){
 		var year = getYearsDiff(this.startWorkDate,date);
-		return getItem(cleaning_vacations_six, year);
+		return this.getPartTimeFraction() * getItem(cleaning_vacations_six, year);
 	  }
 	else
 		return Worker.prototype.getVacationDays.call(this, date);
