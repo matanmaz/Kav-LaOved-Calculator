@@ -387,14 +387,15 @@ HourlyWorker.prototype = {
   },
 
   getVacationDays: function(date){
-  	var year = getYearsDiff(this.startWorkDate,date);
+  	var workedSoFar = getDateDiff(this.startWorkDate,date);
+  	var workLeft = getDateDiff(date, this.endWorkDate)
 	if(this.daysPerWeek>1)
 	{
-	  return lookupVacationDays(date, this.daysPerWeek, year);
+	  return lookupVacationDays(date, this.daysPerWeek, workedSoFar, workLeft);
 	}
 	else if(this.daysPerWeek>0)
 	{
-	  return this.daysPerWeek * lookupVacationDays(date, 1, year);
+	  return this.daysPerWeek * lookupVacationDays(date, 1, workedSoFar, workLeft);
 	}	
 	else
 		return 0;

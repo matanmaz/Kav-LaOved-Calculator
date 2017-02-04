@@ -1,4 +1,4 @@
-﻿last_update = "3.1.2017"
+﻿last_update = "4.2.2017"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -764,7 +764,9 @@ function resetOutput () {
 	output_body.empty();
 	output_footer = $("#div_output_footer");
 	output_footer.empty();
-	$('#div_output_donation').hide()
+	output_donation = $('#div_output_donation');
+	output_donation.empty()
+	output_donation.hide()
 }
 
 function getNumDaysInMonth(year,month){
