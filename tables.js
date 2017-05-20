@@ -14,7 +14,7 @@ agr_holiday_ratio = 1.75;
 
 recuperation_days = [5,6,6,7,7,7,7,7,7,7,8,8,8,8,8,9,9,9,9,10];
 latest_recuperation_value = 378;
-recuperation_days_agr = 7;
+recuperation_days_agr = [7,7,7,7,7,7,7,8,9,10];
 
 DEFAULT_WORK_WEEK = 6;
 
@@ -55,7 +55,7 @@ function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
 	}
 }
 
-agr_vacations = [12,12,12,16,16];
+agr_vacations = [16,16,16,16,16,18];
 agr_min_wage_bonus = [0,17.5,35,52.5,70];
 
 cleaning_workers_temporary_hourly_wage = 24.98;
@@ -96,7 +96,7 @@ pension_data=[
 [new Date('2014-01-01 00:00:00'),4300,0.06,0.06],
 [new Date('2015-04-01 00:00:00'),4650,0.06,0.06],
 [new Date('2016-07-01 00:00:00'),4825,0.0625,0.06],
-[new Date('2016-07-01 00:00:00'),5000,0.065,0.06],
+[new Date('2017-01-01 00:00:00'),5000,0.065,0.06],
 ];
 
 pension_data_cleaner=[

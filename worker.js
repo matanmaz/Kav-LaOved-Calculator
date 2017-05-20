@@ -489,15 +489,16 @@ AgriculturalWorker.prototype = {
   },
 
   getRecuperationDays: function (date, ignorePartial) {
-	var partial = this.getPartTimeFraction();
-	if(ignorePartial)
-	  partial = 1;
-	return partial*recuperation_days_agr;
+		var partial = this.getPartTimeFraction();
+		var year = getYearsDiff(this.startWorkDate,date);
+		if(ignorePartial)
+			partial = 1;
+		return partial*getItem(recuperation_days_agr, year);
   },
 
   getVacationDays: function (date) {
   	var year = getYearsDiff(this.startWorkDate,date);
-	return getItem(agr_vacations, year);
+		return getItem(agr_vacations, year);
   },
 
   getMonthWage: function (date) {
