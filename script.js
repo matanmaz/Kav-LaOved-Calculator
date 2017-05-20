@@ -1,4 +1,4 @@
-﻿last_update = "18.3.2017"
+﻿last_update = "20.5.2017"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -10,6 +10,10 @@ CARETAKER_FORM = 1;
 DAILY_WORKER_FORM = 2;
 AGRICULTURAL_WORKER_FORM = 3;
 MONTHLHY_WORKER_FORM = 4;
+
+//If wanting to add a language, add it here and add it to languages.js in this order
+var langs = ['en','he','th'];
+var langsLabel = ['English','עברית','Thai'];
 
 var forms = [];
 
@@ -31,18 +35,15 @@ function getQueryParams(qs) {
 var $_GET = getQueryParams(document.location.search);
 if($_GET.lang)
 {
-	if($_GET.lang=='en')
-		LANG=0;
-	else if($_GET.lang=='he')
-		LANG=1;
-	else if($_GET.lang=='ar')
-		LANG=2;
+	//if directed here using a language parameter... this hasn't been implemented
+	LANG = langs.indexOf($_GET.lang);
 }
 
+//translates LANG to text direction
 function isPageLtr () {
-	if(LANG==0)
-		return true;
-	return false;
+	if(langs[LANG]=='he')
+		return false;
+	return true;
 }
 
 $(function() {
@@ -64,7 +65,7 @@ function updateCleaningEmployeeExpansionDateLabel() {
 
 function initPage() {
 
-	//initialization
+	//setting the text direction globally
 	if(isPageLtr())
 		document.body.dir="ltr";
 	else
@@ -74,8 +75,9 @@ function initPage() {
 
 	$("#div_main").append('Calculator from: ' + last_update + "<br/>");
 	
-	$("#div_main").append('<input id="lang0" type="button" value="English" onClick="setLang(0);"/> ');
-	$("#div_main").append('<input id="lang0" type="button" value="עברית" onClick="setLang(1);"/><br/>');
+	for(let i in langs){
+		$("#div_main").append('<input id="lang'+i+'" type="button" value="'+langsLabel[i]+'" onClick="setLang('+i+');"/><br/> ');
+	}
 
 	$("#div_main").append('<input type="button" value="'+STR.print[LANG]+'" onClick="printOutput();"/> ');
 	$("#div_main").append('<input type="button" value="'+STR.reset[LANG]+'" onClick="resetOutput();"/><br/>');
@@ -138,7 +140,7 @@ function initPage() {
 	$("#form3").append(sprintf(formElement24,3,3));
 	$("#form4").append(sprintf(formElement24,4,4));
 
-	//Calculate with　Ｏｌｄｎｅｓｓ?
+	//Calculate with oldness
 	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
 
 	//transportationCosts
@@ -149,6 +151,11 @@ function initPage() {
 
 	addInputToForms([CLEANING_WORKER_FORM], STR.overtime[LANG] + " 150%", "number", 27, "0");
 
+	//drop down for output language
+	forms.map(function(form) {
+		form.addDropdown(STR.output_lang[LANG], 30, langsLabel, "setOutputLang();" );
+	});
+
 	//calc_recuper_vacation_and_holidays button
 	forms.map(function(form){
 		form.addButton(STR.calc_recuper_vacation_and_holidays[LANG], 15, "resetOutput();main([calcRecuper,calcVacation,calcHolidays]);");
@@ -157,6 +164,7 @@ function initPage() {
 	forms.map(function(form){
 		form.addButton(STR.calc_compen[LANG], 17, "resetOutput();main([calcPension,calcCompen,calcEarly]);");
 	});
+	
 
     showForm(-1);
 }
@@ -177,6 +185,16 @@ function main(funcs) {
 	var overtime150 = 1*$('#formElement27-'+selectedForm).val();
 	var transportationCosts = 1*$('#formElement29-'+selectedForm).val();
 	var isSep = isSeparationEligible();
+
+	//sets the text direction of the output
+	if(isPageLtr()){
+		$("#div_output_header")[0].style.direction="ltr";
+		$("#div_output_body")[0].style.direction="ltr";
+	}
+	else {
+		$("#div_output_header")[0].style.direction="rtl";
+		$("#div_output_body")[0].style.direction="rtl";
+	}
 
 	showDonationMessage();
 
@@ -206,6 +224,11 @@ function main(funcs) {
 	};
 }
 
+//sets the language according to the selected output
+function setOutputLang(){
+	LANG = parseInt(document.getElementById("formElement30-"+selectedForm).value);
+}
+
 function showDonationMessage(){
 	$('#div_output_donation').show()
 	$('#div_output_donation').append(donation_message);
@@ -233,6 +256,10 @@ function showForm(formId){
 	}
 	selectedForm = formId;
 	checkedEligCompen();
+	
+	//set the output language select default value to the current language
+	if(document.getElementById('formElement30-'+selectedForm))
+		document.getElementById('formElement30-'+selectedForm).value = LANG;
 }
 
 function getItemByDate(array, date) {
@@ -909,8 +936,6 @@ function resetPage(){
 }
 
 function setLang(lang){
-	if(lang==LANG)
-		return;
 	LANG = lang;
 	resetPage();
 }

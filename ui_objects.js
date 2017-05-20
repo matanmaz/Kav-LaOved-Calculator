@@ -24,5 +24,16 @@ Form.prototype = {
 		formElement = sprintf("<tr><td><input type='button' value='%s' id='formElement%d-%d' onClick='%s'/></td><td></td></tr>",
 			label, id, this.id, onClickActions);
 		this.dom.append(formElement);
+	},
+
+	addDropdown : function(label, id, listItems, onChange) {
+		var formElement;
+		formElement = sprintf("<tr><td>%s</td><td><select id='formElement%d-%d' onChange="+onChange+">",
+			label, id, this.id);
+		for (let i in listItems){
+			formElement += "<option value='" + i + "'>" + listItems[i] + "</option>";
+		}
+		formElement += "</select></td></tr>";
+		this.dom.append(formElement);
 	}
 }
