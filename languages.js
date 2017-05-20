@@ -82,7 +82,7 @@
 	editor_name : ['Calculated By','שם עורך החישוב','ชื่อบรรณาธิการ'],
 	pension_statement : ['By law, the calculation is based on Israeli minimum wage or the actual wage - whichever is higher',' על פי חוק, החישוב נעשה על בסיס שכר המינימום בישראל או השכר בפועל - הגבוה מביניהם','การคำนวณขึ้นอยู่กับค่าจ้างขั้นต่ำของอิสราเอลหรือค่าจ้างที่เกิดขึ้นจริง - แล้วแต่จำนวนใดจะสูงกว่า'],
 	output_pension_expl : ['(employer allowance only, starting from 7th month at work)','(הפרשות המעסיק בלבד, החל מהחודש השביעי לעבודה)','(เบี้ยเลี้ยงนายจ้างเท่านั้นเริ่มต้นจากเดือนที่ 7 ในที่ทำงาน)'],
-	shekels : ['NIS','ש"ח'],
+	shekels : ['NIS','ש"ח','เชคเคิล'],
 	employer_name : ['Employer Name','שם המעסיק','ชื่อพนักงาน'],
 	comments : ['Comments','הערות','แสดงความคิดเห็น'],
 	cleaning_type : ['Type','סוג','ชนิด'],
