@@ -1,4 +1,4 @@
-﻿last_update = "20.5.2017"
+﻿last_update = "31.7.2017"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -139,9 +139,6 @@ function initPage() {
 	$("#form2").append(sprintf(formElement24,2,2));
 	$("#form3").append(sprintf(formElement24,3,3));
 	$("#form4").append(sprintf(formElement24,4,4));
-
-	//Calculate with oldness
-	addInputToAllForms(STR.calc_total_w_oldness[LANG], "checkbox", 14, "");
 
 	//transportationCosts
 	addInputToForms([CLEANING_WORKER_FORM], STR.transportationCosts[LANG], "number", 29, "0");
