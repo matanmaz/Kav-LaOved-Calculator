@@ -29,6 +29,8 @@ Worker.prototype = {
 	staticVars['months_waited'] = 0;
 	staticVars['total_months'] = 0;
 	staticVars['total_value'] = 0;
+	staticVars['compensation_total'] = 0;
+	staticVars['pension_total'] = 0;
 	staticVars['doneWaiting'] = false;
 	if(startDate < pension_data[0][0]){
 		staticVars['months_waited'] += getMonthsDiff(startDate, pension_data[0][0]);
@@ -82,6 +84,8 @@ Worker.prototype = {
 	else
 		periodTotal += periodPensionTotal + periodCompensationTotal;
 	staticVars['total_value'] += periodTotal;
+	staticVars['pension_total'] += periodPensionTotal;
+	staticVars['compensation_total'] += periodCompensationTotal;
 	
 	//period string
 	var periodString = dateToString(periodStart,1) + " - " + dateToString(periodEnd,1);
@@ -122,7 +126,11 @@ Worker.prototype = {
 	var rows = result[0];
 	var staticVars = result[1];
 	var bottom_lines = this.getPensionBottomLine(staticVars['total_value'], isEligibleToSeparationShowing);
-	return [staticVars['total_value'], rows, bottom_lines];
+	return {'total_value':staticVars['total_value'], 
+	'pension_total': staticVars['pension_total'], 
+	'compensation_total': staticVars['compensation_total'],
+	'rows' : rows, 
+	'bottom_lines' : bottom_lines};
   },
 
   getPensionWaiting: function (date) {

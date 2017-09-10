@@ -30,10 +30,15 @@ x_day_week_vacations = [one_day_week_vacations,
 function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
 	var years = workedSoFar[0];
 	//are we talking about a work year that some part of it is post reform?
-	var postReform = getMonthsDiff(date, new Date('07/01/2016')) < 12 && (workLeft[0]*12 + workLeft[1]) > getMonthsDiff(date, new Date('07/01/2016'));
+	var post2016Reform = getMonthsDiff(date, new Date('07/01/2016')) < 12 && (workLeft[0]*12 + workLeft[1]) > getMonthsDiff(date, new Date('07/01/2016'));
+	var post2018Reform = getMonthsDiff(date, new Date('01/01/2018')) < 12 && (workLeft[0]*12 + workLeft[1]) > getMonthsDiff(date, new Date('01/01/2018'));
 	switch(days_per_week){
 		case 6:
-			if (postReform){
+			if (post2018Reform){
+				data = [14,14,14,14,14,16,18,19,20,21,22,23,24,24];
+				return getItem(data, years);
+			}
+			else if (post2016Reform){
 				data = [13,13,13,13,14,16,18,19,20,21,22,23,24,24];
 				return getItem(data, years);
 			}
@@ -42,7 +47,11 @@ function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
 				return getItem(data, years);
 			}
 		case 5:
-			if (postReform){
+			if (post2018Reform){
+				data = [12,12,12,12,12,14,15,16,17,18,19,20,20];
+				return getItem(data, years);
+			}
+			else if (post2016Reform){
 				data = [11,11,11,11,12,14,15,16,17,18,19,20,20];
 				return getItem(data, years);
 			}

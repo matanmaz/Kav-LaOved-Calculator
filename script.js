@@ -463,9 +463,11 @@ function calcPension(isFirst){
 	}
 
 	var result = worker.getPensionTable(sep_elig_show_details);
-	var total_value = result[0];
-	var rows = result[1];
-	var bottom_lines = result[2];
+	var total_value = result['total_value'];
+	var pension_total = result['pension_total'];
+	var compensation_total = result['compensation_total'];
+	var rows = result['rows'];
+	var bottom_lines = result['bottom_lines'];
 
 	//get visual
 	var pensionExpl = (worker.getPensionWaiting(worker.startWorkDate)==6) ? STR.output_pension_expl[LANG] : "";
@@ -484,7 +486,7 @@ function calcPension(isFirst){
 	//In case both checkmarks are checked, we need the separation pay total saved so that we can deduct it from the compensation total
 	sepPayTotal = 0
 	if(sep_elig && sep_elig_show_details){
-		sepPayTotal = total_value / 2;
+		sepPayTotal = compensation_total;
 	}
 	
 	if(null != worker.getHishtalmutEligibleDay()) {
@@ -583,7 +585,7 @@ function calcCompen (isFirst) {
 		
 		if(sep_elig && selectedForm == CLEANING_WORKER_FORM){
 			//this is ugly, but we need to know how much compensation was given in pension and subtract it
-			var rows = worker.getPensionTable(sep_elig_show_details)[1];
+			var rows = worker.getPensionTable(sep_elig_show_details)['rows'];
 			var pension_compensation = 0;
 			for(var i = 0; i < rows.length; i++)
 			{
