@@ -1,4 +1,4 @@
-﻿last_update = "31.7.2017"
+﻿last_update = "10.9.2017"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
