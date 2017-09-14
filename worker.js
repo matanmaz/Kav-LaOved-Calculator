@@ -480,7 +480,14 @@ MonthlyWorker.prototype = {
 	}
 	return monthWage;
   },
-
+	getVacationDays: function (date) {
+		var workedSoFar = getDateDiff(this.startWorkDate,date);
+		var workLeft = getDateDiff(date, this.endWorkDate);
+		if(this.daysPerWeek != 6)
+			return lookupVacationDays(date, 5, workedSoFar, workLeft);
+		else
+			return lookupVacationDays(date, 6, workedSoFar, workLeft);
+  },
 }
 
 extend(Worker, MonthlyWorker);
