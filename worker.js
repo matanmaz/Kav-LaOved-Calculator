@@ -102,6 +102,7 @@ Worker.prototype = {
 	  	month_wage:this.getMonthWage(periodStart), 
 	  	period_percentage_string:periodPercentageString, 
 	  	period_pension_total:periodPensionTotal, 
+	  	period_compensation_total:periodCompensationTotal,
 	  	period_total:periodTotal};
 	}
 	else {
