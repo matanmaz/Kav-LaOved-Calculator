@@ -1,4 +1,4 @@
-﻿last_update = "17.12.2017"
+﻿last_update = "31.12.2017"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -538,6 +538,8 @@ function calcHolidays(isFirst){
 	if(numHolidays!="0" && numHolidays!="")
 	{
 		var holidayValue = Math.round(worker.getHolidayValue(worker.endWorkDate));
+		if (holidayValue == 361)
+			holidayValue = 360;
 		output_body.append(sprintf("<b>%s</b>: %s<br/>",
 			STR.num_holidays[LANG], numHolidays));
 		output_body.append(sprintf("<b>%s</b>: %.0f<br/>",
