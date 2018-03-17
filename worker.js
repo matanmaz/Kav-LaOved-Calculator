@@ -240,6 +240,7 @@ Worker.prototype = {
 	getVacationTable: function () {
 		var rows = [];
 		var vacationDayList = [];
+		var potentialDayList = [];
 
 		var vacation_days = 0;//running total
 		var vacation_days_without_oldness = 0;
@@ -256,19 +257,32 @@ Worker.prototype = {
 			//increment date by a month
 			running_date.setMonth(running_date.getMonth() + 1);
 		}
+		running_date = new Date(this.startWorkDate);
+		while (running_date <= addMonth(this.endWorkDate, 12)) {
+			//is this a partial month?
+			var days = partial * this.getVacationDays(running_date) / 12.0;
+			potentialDayList.push([days]);
+			//increment date by a month
+			running_date.setMonth(running_date.getMonth() + 1);
+		}
 		//sum up each year's months
 		for (i = 0; i < vacationDayList.length / 12; i++) {
 			var yearsDaysTotal = 0;
+			var yearsDaysPotentialTotal = 0;
 			var running_date = addMonth(new Date(this.startWorkDate), 12 * i);
 			for (j = i * 12; j < (i + 1) * 12 && j < this.dateDiff[0] * 12 + this.dateDiff[1] && j < vacationDayList.length; j++) {
 				yearsDaysTotal += vacationDayList[j][0];
 				if (j + 36 >= vacationDayList.length)
 					vacation_days += vacationDayList[j][0];
 			}
+			for (j = i * 12; j < (i + 1) * 12; j++) {
+				yearsDaysPotentialTotal += potentialDayList[j][0];
+			}
 			var r_yearsDaysTotal = roundVacationDays(yearsDaysTotal);
+			var r_yearsDaysPotentialTotal = roundVacationDays(yearsDaysPotentialTotal);
 			var r_yearsVacationTotal = r_yearsDaysTotal * vacationDayValue;
 			vacation_days_without_oldness += r_yearsDaysTotal;
-			rows[i] = [i + 1, this.getVacationDays(addMonth(running_date, 12)), r_yearsDaysTotal, r_yearsVacationTotal];
+			rows[i] = [i + 1, r_yearsDaysPotentialTotal, r_yearsDaysTotal, r_yearsVacationTotal];
 		}
 		vacation_days = roundVacationDays(vacation_days);
 		return [vacation_days * vacationDayValue, vacation_days_without_oldness * vacationDayValue, rows];

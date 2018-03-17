@@ -66,7 +66,7 @@ function lookupVacationDays(date, days_per_week, workedSoFar, workLeft) {
 	}
 }
 
-agr_vacations = [16,16,16,16,16,18];
+agr_vacations = [14,14,14,16,16,18];
 agr_min_wage_bonus = [0,17.5,35,52.5,70];
 
 cleaning_workers_temporary_hourly_wage = 24.98;
