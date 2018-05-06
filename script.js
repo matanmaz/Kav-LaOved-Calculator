@@ -1,4 +1,4 @@
-﻿last_update = "17.3.2018"
+﻿last_update = "6.5.2018"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -413,7 +413,7 @@ function calcVacation(isFirst){
 	var dateDiff = getDateDiff(start_date, end_date);
 
 	//define output table headers
-	var headers = [STR.years[LANG], STR.vacation_days_potential[LANG], STR.vacation_days_net[LANG], STR.amount_per_year[LANG]];
+	var headers = [STR.years[LANG], STR.vacation_days_net[LANG], STR.amount_per_year[LANG]];
 
     var result = worker.getVacationTable();
 	var total_value = result[0];//running total
@@ -429,7 +429,7 @@ function calcVacation(isFirst){
 		end_date, 
 		headers, 
 		rows,
-		['%d','%d','%d','%.2f']);
+		['%d','%d','%.2f']);
 	output = $("#div_output");
 
 	if($('#formElement14-'+selectedForm).is(':checked'))

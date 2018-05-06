@@ -282,7 +282,9 @@ Worker.prototype = {
 			var r_yearsDaysPotentialTotal = roundVacationDays(yearsDaysPotentialTotal);
 			var r_yearsVacationTotal = r_yearsDaysTotal * vacationDayValue;
 			vacation_days_without_oldness += r_yearsDaysTotal;
-			rows[i] = [i + 1, r_yearsDaysPotentialTotal, r_yearsDaysTotal, r_yearsVacationTotal];
+			//removed the fourth column due to Zehavit's request. She may change her mind
+			//rows[i] = [i + 1, r_yearsDaysPotentialTotal, r_yearsDaysTotal, r_yearsVacationTotal];
+			rows[i] = [i + 1, r_yearsDaysTotal, r_yearsVacationTotal];
 		}
 		vacation_days = roundVacationDays(vacation_days);
 		return [vacation_days * vacationDayValue, vacation_days_without_oldness * vacationDayValue, rows];
