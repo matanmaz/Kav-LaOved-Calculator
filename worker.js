@@ -739,15 +739,6 @@ CleaningWorker.prototype = {
 			return true;
 		return Worker.prototype.isEligibleToRecuperation.call(this, date);
 	},
-
-	getVacationDays: function (date) {
-		if (date >= this.getExpansionDate()) {
-			var year = getYearsDiff(this.startWorkDate, date);
-			return this.getPartTimeFraction() * getItem(cleaning_vacations_six, year);
-		}
-		else
-			return Worker.prototype.getVacationDays.call(this, date);
-	},
 }
 extend(Worker, CleaningWorker);
 
