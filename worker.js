@@ -252,7 +252,8 @@ Worker.prototype = {
 			//is this a partial month?
 			var partial = (this.endWorkDate - running_date) / TIME_IN_MONTH;
 			partial = partial > 1 ? partial = 1 : partial;
-			var days = partial * this.getVacationDays(running_date) / 12.0;
+			var vac_days_t = this.getVacationDays(running_date);
+			var days = partial * vac_days_t / 12.0;
 			vacationDayList.push([days]);
 			//increment date by a month
 			running_date.setMonth(running_date.getMonth() + 1);

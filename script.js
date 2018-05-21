@@ -1,4 +1,4 @@
-﻿last_update = "8.5.2018"
+﻿last_update = "21.5.2018"
 
 NUM_WORKER_TYPES = 5;
 LANG = 1;
@@ -886,6 +886,7 @@ function getYearsDiff(startDate, endDate) {
 	}
 	var years = 0;
 	dateA = addMonth(dateA, 12);
+	dateA = addDay(dateA, -1);
 	while(dateA < dateB){
 		years++;
 		dateA = addMonth(dateA, 12);
